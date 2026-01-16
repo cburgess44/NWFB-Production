@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>52.0</apiVersion>
+    <isExposed>true</isExposed>
+    <targets>
+        <target>lightning__AppPage</target>
+        <target>lightning__RecordPage</target>
+        <target>lightning__HomePage</target>
+        <target>lightningCommunity__Page</target>
+        <target>lightningCommunity__Default</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightning__RecordPage">
+            <property name="objectName" type="String" label="Object Name" description="Enter the object name"/>
+            <property name="refField" type="String" label="Reference Field" description="Enter the object name"/>
+            <property name="relationshipApiName" type="String" label="Relationship Name" description="Enter the relationship API name"/>
+            <property name="parentFieldAPIName" type="String" label="Parent Field API Name" description="Enter the parent field API Name"/>
+            <property name="parentObjectName" type="String" label="Parent Object Name" description="Enter the parent object name"/>
+            <property name="parentFieldName" type="String" label="Parent Field Name" description="Enter the parent object name"/>
+            <property name="newRecordAvailable" type="Boolean" label="Button new Record" default="true" description="Enter the option for button"/>
+            <property name="field1" type="String" label="Layout Field 1 " description="Enter the API name of the field"/>
+            <property name="field2" type="String" label="Layout Field 2 " description="Enter the API name of the field"/>
+            <property name="field3" type="String" label="Layout Field 3 " description="Enter the API name of the field"/>
+            <property name="field4" type="String" label="Layout Field 4 " description="Enter the API name of the field"/>
+            <property name="field5" type="String" label="Layout Field 5 " description="Enter the API name of the field"/>
+            <property name="field6" type="String" label="Layout Field 6 " description="Enter the API name of the field"/>
+            <property name="showStaffRequestableItems" type="Boolean" label="Show Staff Requestable Items" default="true"/>
+            <property name="showFlexibleProducts" type="Boolean" label="Show Flexible Products" default="true"/>
+            <supportedFormFactors>
+                <supportedFormFactor type="Large" />
+                <supportedFormFactor type="small" />
+            </supportedFormFactors>
+        </targetConfig>
+        <targetConfig targets="lightningCommunity__Default">
+            <property name="recordId" type="String" label="Record ID" description="Enter the record id"/>
+            <property name="objectName" type="String" label="Object Name" description="Enter the object name"/>
+            <property name="refField" type="String" label="Reference Field" description="Enter the object name"/>
+            <property name="relationshipApiName" type="String" label="Relationship Name" description="Enter the relationship API name"/>
+            <property name="parentFieldAPIName" type="String" label="Parent Field API Name" description="Enter the parent field API Name"/>
+            <property name="parentObjectName" type="String" label="Parent Object Name" description="Enter the parent object name"/>
+            <property name="parentFieldName" type="String" label="Parent Field Name" description="Enter the parent object name"/>
+            <property name="newRecordAvailable" type="Boolean" label="Button new Record" default="true" description="Enter the option for button"/>
+            <property name="field1" type="String" label="Layout Field 1 " description="Enter the API name of the field"/>
+            <property name="field2" type="String" label="Layout Field 2 " description="Enter the API name of the field"/>
+            <property name="field3" type="String" label="Layout Field 3 " description="Enter the API name of the field"/>
+            <property name="field4" type="String" label="Layout Field 4 " description="Enter the API name of the field"/>
+            <property name="field5" type="String" label="Layout Field 5 " description="Enter the API name of the field"/>
+            <property name="field6" type="String" label="Layout Field 6 " description="Enter the API name of the field"/>
+            <property name="showStaffRequestableItems" type="Boolean" label="Show Staff Requestable Items" default="true"/>
+            <property name="showFlexibleProducts" type="Boolean" label="Show Flexible Products" default="true"/>
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>

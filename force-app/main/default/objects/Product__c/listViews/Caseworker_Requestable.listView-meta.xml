@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Caseworker_Requestable</fullName>
+    <columns>NAME</columns>
+    <columns>Category__c</columns>
+    <columns>Caseworker_Requestable__c</columns>
+    <columns>Flexible__c</columns>
+    <columns>Invoiceable__c</columns>
+    <columns>Product_Fee__c</columns>
+    <columns>Taxable__c</columns>
+    <columns>Limit__c</columns>
+    <columns>Product_Code__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Archived__c</field>
+        <operation>equals</operation>
+        <value>0</value>
+    </filters>
+    <filters>
+        <field>Caseworker_Requestable__c</field>
+        <operation>equals</operation>
+        <value>1</value>
+    </filters>
+    <label>Caseworker Requestable</label>
+</ListView>

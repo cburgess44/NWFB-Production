@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>All_Products</fullName>
+    <columns>NAME</columns>
+    <columns>CREATED_DATE</columns>
+    <columns>Category__c</columns>
+    <columns>Product_Code__c</columns>
+    <columns>Product_Fee__c</columns>
+    <columns>Archived__c</columns>
+    <columns>Taxable__c</columns>
+    <columns>Website_Pickup_Requestable__c</columns>
+    <columns>Staff_Requestable__c</columns>
+    <columns>Caseworker_Requestable__c</columns>
+    <columns>Flexible__c</columns>
+    <columns>Invoiceable__c</columns>
+    <columns>Limit__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Archived__c</field>
+        <operation>equals</operation>
+        <value>0</value>
+    </filters>
+    <filters>
+        <field>Category__c</field>
+        <operation>equals</operation>
+        <value>Mattresses</value>
+    </filters>
+    <label>All Products</label>
+</ListView>

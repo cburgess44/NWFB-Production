@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Flexible_Items</fullName>
+    <columns>NAME</columns>
+    <columns>Flexible__c</columns>
+    <columns>Limit__c</columns>
+    <columns>Product_Code__c</columns>
+    <columns>Category__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Flexible__c</field>
+        <operation>equals</operation>
+        <value>1</value>
+    </filters>
+    <filters>
+        <field>Archived__c</field>
+        <operation>equals</operation>
+        <value>0</value>
+    </filters>
+    <label>Flexible Items</label>
+    <sharedTo>
+        <role>OfficeMgmt</role>
+        <role>OfficeStaff</role>
+    </sharedTo>
+</ListView>

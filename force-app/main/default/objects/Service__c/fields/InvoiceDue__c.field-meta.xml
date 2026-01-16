@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>InvoiceDue__c</fullName>
+    <externalId>false</externalId>
+    <formula>IF( RecordTypeName__c = &apos;ClientRequest&apos;, LastAppointmentDate__c + 30, DATEVALUE(CreatedDate))</formula>
+    <inlineHelpText>30 days from last appointment date</inlineHelpText>
+    <label>Invoice Due</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Date</type>
+</CustomField>

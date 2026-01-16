@@ -1,0 +1,69 @@
+<!--
+ - Created by Eric on 15/06/2023.
+ -->
+
+<!-- Service Invoice -->
+<template>
+    <div class="slds-card" style="border: 1px solid rgb(221, 219, 218);">
+        <article>
+            <div class="slds-grid">
+                <header style="border-bottom: 1px solid rgb(221, 219, 218);border-bottom-left-radius: 0px;border-bottom-right-radius: 0px; margin-top: 0px;"
+                        class="slds-media slds-media_center slds-has-flexi-truncate slds-page-header slds-page-header_record-home">
+
+                    <div class="slds-media__figure">
+                        <lightning-icon icon-name="standard:email_chatter" size="small"></lightning-icon>
+                    </div>
+
+                    <div class="slds-media__body">
+                        <h2 class="slds-card__header-title">
+                            Generate Invoices
+                        </h2>
+                    </div>
+
+                    <div class="slds-no-flex">
+
+                    </div>
+                </header>
+                <div if:false={isLoaded}>
+                    <lightning-spinner alternative-text="Loading...">
+                    </lightning-spinner>
+                </div>
+            </div>
+            <br/>
+            <lightning-input if:true={showContact}
+                             class="slds-p-left_xx-large"
+                             type="checkbox"
+                             data-target-id="contact"
+                             label="Send to Contact"
+                             onchange={handleCheckBoxChange}>
+            </lightning-input>
+            <lightning-input if:true={showCaseworker}
+                             class="slds-p-left_xx-large"
+                             type="checkbox"
+                             data-target-id="caseworker"
+                             label="Send to Caseworker"
+                             onchange={handleCheckBoxChange}>
+            </lightning-input>
+            <lightning-input if:true={showAPContact}
+                             class="slds-p-left_xx-large"
+                             type="checkbox"
+                             data-target-id="apContact"
+                             label="Send to AP Contacts"
+                             onchange={handleCheckBoxChange}>
+            </lightning-input>
+            <br/>
+            <footer style="text-align:center;font-size:0.8125rem;border-top-width:1px; border-top-style: solid;border-top-color: rgb(221, 219, 218);">
+                <br/>
+                <lightning-button
+                        variant="brand"
+                        label={sendButtonLabel}
+                        title="Send"
+                        onclick={handleSendEmail}
+                        class="slds-m-left_x-small button"
+                ></lightning-button>
+
+            </footer>
+            <br/>
+        </article>
+    </div>
+</template>

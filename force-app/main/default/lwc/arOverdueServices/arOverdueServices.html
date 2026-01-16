@@ -1,0 +1,504 @@
+<template>
+    <lightning-card title="Unpaid Services > 30 Days" icon-name="standard:service_contract">
+        <div slot="actions">
+            <lightning-button-group>
+                <lightning-button 
+                    label="Send Agency Summary" 
+                    icon-name="utility:email"
+                    onclick={openAgencySummaryModal}>
+                </lightning-button>
+                <lightning-button 
+                    label="Refresh" 
+                    icon-name="utility:refresh" 
+                    onclick={handleRefresh}>
+                </lightning-button>
+            </lightning-button-group>
+        </div>
+        
+        <div class="slds-p-around_medium">
+            <!-- Summary Stats -->
+            <div class="slds-grid slds-wrap slds-gutters slds-m-bottom_medium">
+                <div class="slds-col slds-size_1-of-5">
+                    <div class="stat-box">
+                        <div class="stat-value">{totalServices}</div>
+                        <div class="stat-label">Unpaid Services</div>
+                    </div>
+                </div>
+                <div class="slds-col slds-size_1-of-5">
+                    <div class="stat-box">
+                        <div class="stat-value">{formattedTotalBalance}</div>
+                        <div class="stat-label">Total Outstanding</div>
+                    </div>
+                </div>
+                <div class="slds-col slds-size_1-of-5">
+                    <div class="stat-box critical">
+                        <div class="stat-value">{criticalCount}</div>
+                        <div class="stat-label">90+ Days</div>
+                    </div>
+                </div>
+                <div class="slds-col slds-size_1-of-5">
+                    <div class="stat-box warning">
+                        <div class="stat-value">{warningCount}</div>
+                        <div class="stat-label">61-90 Days</div>
+                    </div>
+                </div>
+                <div class="slds-col slds-size_1-of-5">
+                    <div class="stat-box caution">
+                        <div class="stat-value">{cautionCount}</div>
+                        <div class="stat-label">31-60 Days</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sort Controls -->
+            <div class="slds-box slds-m-bottom_medium slds-theme_shade" style="padding: 12px;">
+                <div class="slds-grid slds-gutters slds-grid_vertical-align-end">
+                    <div class="slds-col slds-size_3-of-12">
+                        <lightning-combobox
+                            label="Sort By"
+                            value={primarySortField}
+                            options={sortFieldOptions}
+                            onchange={handlePrimarySortFieldChange}
+                            variant="label-stacked">
+                        </lightning-combobox>
+                    </div>
+                    <div class="slds-col slds-size_2-of-12">
+                        <lightning-combobox
+                            value={primarySortDirection}
+                            options={sortDirectionOptions}
+                            onchange={handlePrimarySortDirectionChange}
+                            variant="label-hidden"
+                            disabled={isPrimarySortEmpty}>
+                        </lightning-combobox>
+                    </div>
+                    <div class="slds-col slds-size_3-of-12">
+                        <lightning-combobox
+                            label="Then By"
+                            value={secondarySortField}
+                            options={secondarySortFieldOptions}
+                            onchange={handleSecondarySortFieldChange}
+                            variant="label-stacked"
+                            disabled={isPrimarySortEmpty}>
+                        </lightning-combobox>
+                    </div>
+                    <div class="slds-col slds-size_2-of-12">
+                        <lightning-combobox
+                            value={secondarySortDirection}
+                            options={sortDirectionOptions}
+                            onchange={handleSecondarySortDirectionChange}
+                            variant="label-hidden"
+                            disabled={isSecondarySortEmpty}>
+                        </lightning-combobox>
+                    </div>
+                    <div class="slds-col slds-size_2-of-12">
+                        <lightning-button
+                            label="Reset"
+                            icon-name="utility:refresh"
+                            onclick={handleClearSort}
+                            variant="neutral">
+                        </lightning-button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loading Spinner -->
+            <template if:true={isLoading}>
+                <div class="slds-align_absolute-center slds-p-around_large">
+                    <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+                </div>
+            </template>
+
+            <!-- Error Message -->
+            <template if:true={error}>
+                <div class="slds-text-color_error slds-p-around_medium">
+                    Error loading data: {error}
+                </div>
+            </template>
+
+            <!-- Data Table -->
+            <template if:false={isLoading}>
+                <template if:true={hasServices}>
+                    <lightning-datatable
+                        key-field="id"
+                        data={services}
+                        columns={columns}
+                        sorted-by={sortedBy}
+                        sorted-direction={sortedDirection}
+                        onsort={handleSort}
+                        onrowaction={handleRowAction}
+                        hide-checkbox-column
+                        show-row-number-column>
+                    </lightning-datatable>
+                </template>
+                <template if:false={hasServices}>
+                    <div class="slds-align_absolute-center slds-p-around_large slds-text-color_success">
+                        <lightning-icon icon-name="utility:check" size="small" class="slds-m-right_small"></lightning-icon>
+                        No overdue services! All caught up.
+                    </div>
+                </template>
+            </template>
+        </div>
+    </lightning-card>
+
+    <!-- Engagement Modal -->
+    <template if:true={showEngagementModal}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open slds-modal_large">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" onclick={closeEngagementModal}>
+                        <lightning-icon icon-name="utility:close" size="small"></lightning-icon>
+                    </button>
+                    <h2 class="slds-modal__title">Take Action: {selectedService.name}</h2>
+                    <p class="slds-m-top_x-small">
+                        <strong>{selectedService.agencyName}</strong> • 
+                        Balance: <strong class="slds-text-color_error">{selectedService.formattedBalance}</strong> • 
+                        {selectedService.agingBucket}
+                    </p>
+                </header>
+                
+                <div class="slds-modal__content slds-p-around_medium">
+                    <!-- Action Tabs -->
+                    <lightning-tabset>
+                        <!-- Send Email Tab -->
+                        <lightning-tab label="Send Email" icon-name="utility:email">
+                            <div class="slds-p-around_medium">
+                                <lightning-combobox
+                                    label="Send To"
+                                    value={emailRecipientType}
+                                    options={recipientOptions}
+                                    onchange={handleRecipientChange}>
+                                </lightning-combobox>
+                                
+                                <lightning-combobox
+                                    class="slds-m-top_medium"
+                                    label="Email Template"
+                                    value={selectedTemplateId}
+                                    options={templateOptions}
+                                    onchange={handleTemplateChange}
+                                    placeholder="Select a template...">
+                                </lightning-combobox>
+                                
+                                <div class="slds-m-top_large">
+                                    <lightning-button 
+                                        variant="brand" 
+                                        label="Send Email" 
+                                        icon-name="utility:email"
+                                        onclick={handleSendEmail}
+                                        disabled={sendEmailDisabled}>
+                                    </lightning-button>
+                                </div>
+                            </div>
+                        </lightning-tab>
+                        
+                        <!-- Record Payment Tab -->
+                        <lightning-tab label="Record Payment" icon-name="utility:money">
+                            <div class="slds-p-around_medium">
+                                <lightning-input
+                                    type="number"
+                                    label="Payment Amount"
+                                    value={paymentAmount}
+                                    onchange={handlePaymentAmountChange}
+                                    formatter="currency"
+                                    step="0.01">
+                                </lightning-input>
+                                
+                                <lightning-combobox
+                                    class="slds-m-top_medium"
+                                    label="Payment Method"
+                                    value={paymentMethod}
+                                    options={paymentMethodOptions}
+                                    onchange={handlePaymentMethodChange}>
+                                </lightning-combobox>
+                                
+                                <lightning-textarea
+                                    class="slds-m-top_medium"
+                                    label="Notes"
+                                    value={paymentNotes}
+                                    onchange={handlePaymentNotesChange}
+                                    placeholder="Check number, transaction ID, etc.">
+                                </lightning-textarea>
+                                
+                                <div class="slds-m-top_large">
+                                    <lightning-button 
+                                        variant="brand" 
+                                        label="Record Payment" 
+                                        icon-name="utility:money"
+                                        onclick={handleRecordPayment}
+                                        disabled={recordPaymentDisabled}>
+                                    </lightning-button>
+                                </div>
+                            </div>
+                        </lightning-tab>
+                        
+                        <!-- Write Off Tab -->
+                        <lightning-tab label="Write Off" icon-name="utility:delete">
+                            <div class="slds-p-around_medium">
+                                <div class="slds-notify slds-notify_alert slds-alert_warning slds-m-bottom_medium" role="alert">
+                                    <span class="slds-assistive-text">Warning</span>
+                                    <span>Writing off will zero out the balance and cannot be undone.</span>
+                                </div>
+                                
+                                <lightning-input
+                                    type="number"
+                                    label="Write Off Amount"
+                                    value={writeOffAmount}
+                                    onchange={handleWriteOffAmountChange}
+                                    formatter="currency"
+                                    step="0.01"
+                                    placeholder="Leave blank for full balance">
+                                </lightning-input>
+                                
+                                <lightning-textarea
+                                    class="slds-m-top_medium"
+                                    label="Reason (Required)"
+                                    value={writeOffReason}
+                                    onchange={handleWriteOffReasonChange}
+                                    placeholder="Why is this being written off?"
+                                    required>
+                                </lightning-textarea>
+                                
+                                <div class="slds-m-top_large">
+                                    <lightning-button 
+                                        variant="destructive" 
+                                        label="Write Off Balance" 
+                                        icon-name="utility:delete"
+                                        onclick={handleWriteOff}
+                                        disabled={writeOffDisabled}>
+                                    </lightning-button>
+                                </div>
+                            </div>
+                        </lightning-tab>
+                        
+                        <!-- Log Call Tab -->
+                        <lightning-tab label="Log Call" icon-name="utility:call">
+                            <div class="slds-p-around_medium">
+                                <lightning-combobox
+                                    label="Update Status"
+                                    value={callStatus}
+                                    options={statusOptions}
+                                    onchange={handleCallStatusChange}>
+                                </lightning-combobox>
+                                
+                                <lightning-textarea
+                                    class="slds-m-top_medium"
+                                    label="Call Notes"
+                                    value={callNotes}
+                                    onchange={handleCallNotesChange}
+                                    placeholder="What was discussed?">
+                                </lightning-textarea>
+                                
+                                <div class="slds-m-top_large">
+                                    <lightning-button 
+                                        variant="brand" 
+                                        label="Log Call" 
+                                        icon-name="utility:call"
+                                        onclick={handleLogCall}>
+                                    </lightning-button>
+                                </div>
+                            </div>
+                        </lightning-tab>
+                    </lightning-tabset>
+                </div>
+                
+                <footer class="slds-modal__footer">
+                    <lightning-button label="Close" onclick={closeEngagementModal}></lightning-button>
+                    <lightning-button variant="neutral" label="View Record" onclick={handleViewRecord}></lightning-button>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+
+    <!-- Agency Summary Modal -->
+    <template if:true={showAgencySummaryModal}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open slds-modal_large">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" onclick={closeAgencySummaryModal}>
+                        <lightning-icon icon-name="utility:close" size="small"></lightning-icon>
+                    </button>
+                    <h2 class="slds-modal__title">
+                        <template if:false={showEmailPreview}>Send Agency AR Summary</template>
+                        <template if:true={showEmailPreview}>📧 Review Email Before Sending</template>
+                    </h2>
+                    <p class="slds-m-top_x-small slds-text-color_weak">
+                        <template if:false={showEmailPreview}>Step 1: Select an agency and review their outstanding services</template>
+                        <template if:true={showEmailPreview}>Step 2: Review the email below, then confirm to send</template>
+                    </p>
+                </header>
+                
+                <div class="slds-modal__content slds-p-around_medium" style="max-height: 70vh; overflow-y: auto;">
+                    <!-- STEP 1: Select Agency -->
+                    <template if:false={showEmailPreview}>
+                        <lightning-combobox
+                            label="Select Agency"
+                            value={selectedAgencyId}
+                            options={agencyOptions}
+                            onchange={handleAgencyChange}
+                            placeholder="Choose an agency...">
+                        </lightning-combobox>
+                        
+                        <template if:true={selectedAgencyId}>
+                            <div class="slds-m-top_large slds-box slds-theme_shade">
+                                <h3 class="slds-text-heading_small slds-m-bottom_small">
+                                    <lightning-icon icon-name="utility:list" size="x-small" class="slds-m-right_x-small"></lightning-icon>
+                                    Services to Include ({selectedAgencyServices.length})
+                                </h3>
+                                
+                                <div class="slds-m-bottom_medium">
+                                    <p><strong>Agency:</strong> {selectedAgencyName}</p>
+                                    <p><strong>Total Due:</strong> <span class="slds-text-color_error slds-text-heading_small">{formattedAgencyTotal}</span></p>
+                                </div>
+                                
+                                <table class="slds-table slds-table_bordered slds-table_cell-buffer slds-table_striped">
+                                    <thead>
+                                        <tr class="slds-line-height_reset">
+                                            <th scope="col">Service</th>
+                                            <th scope="col">Client</th>
+                                            <th scope="col">Service Date</th>
+                                            <th scope="col" class="slds-text-align_right">Balance</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <template for:each={selectedAgencyServices} for:item="svc">
+                                            <tr key={svc.id}>
+                                                <td>{svc.name}</td>
+                                                <td>{svc.contactName}</td>
+                                                <td>
+                                                    <lightning-formatted-date-time 
+                                                        value={svc.serviceRenderedDate}
+                                                        month="short" 
+                                                        day="2-digit" 
+                                                        year="numeric">
+                                                    </lightning-formatted-date-time>
+                                                </td>
+                                                <td class="slds-text-align_right">
+                                                    <lightning-formatted-number 
+                                                        value={svc.balanceDue} 
+                                                        format-style="currency" 
+                                                        currency-code="USD">
+                                                    </lightning-formatted-number>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr class="slds-text-title_caps">
+                                            <td colspan="3" class="slds-text-align_right"><strong>Total:</strong></td>
+                                            <td class="slds-text-align_right"><strong class="slds-text-color_error">{formattedAgencyTotal}</strong></td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </template>
+                    </template>
+                    
+                    <!-- STEP 2: Email Preview (Proofing) -->
+                    <template if:true={showEmailPreview}>
+                        <div class="slds-notify slds-notify_alert slds-alert_warning slds-m-bottom_medium" role="alert">
+                            <lightning-icon icon-name="utility:warning" size="x-small" class="slds-m-right_x-small"></lightning-icon>
+                            <strong>Review carefully!</strong> This email will be sent to {selectedAgencyName}'s primary contact.
+                        </div>
+                        
+                        <div class="slds-box" style="background: white; border: 2px solid #0070d2;">
+                            <!-- Email Header Preview -->
+                            <div class="slds-p-around_small" style="background: #f4f6f9; border-bottom: 1px solid #ddd;">
+                                <p><strong>To:</strong> {selectedAgencyName} Primary Contact</p>
+                                <p><strong>Subject:</strong> Outstanding Balance Summary - {formattedAgencyTotal} - Northwest Furniture Bank</p>
+                            </div>
+                            
+                            <!-- Email Body Preview -->
+                            <div class="slds-p-around_medium">
+                                <div style="background-color: #0070d2; color: white; padding: 20px; text-align: center; margin-bottom: 20px;">
+                                    <h2 style="margin: 0; font-size: 24px;">Outstanding Balance Summary</h2>
+                                    <p style="margin: 5px 0 0 0; font-size: 14px;">Northwest Furniture Bank</p>
+                                </div>
+                                
+                                <p>Dear {selectedAgencyName},</p>
+                                <p>Our records indicate your agency has <strong>{selectedAgencyServices.length} service(s)</strong> 
+                                   with a combined outstanding balance of <strong class="slds-text-color_error">{formattedAgencyTotal}</strong>.</p>
+                                
+                                <table class="slds-table slds-table_bordered slds-table_cell-buffer slds-m-vertical_medium">
+                                    <thead>
+                                        <tr style="background-color: #f4f6f9;">
+                                            <th>Service</th>
+                                            <th>Client</th>
+                                            <th>Service Date</th>
+                                            <th class="slds-text-align_right">Balance</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <template for:each={selectedAgencyServices} for:item="svc">
+                                            <tr key={svc.id}>
+                                                <td>{svc.name}</td>
+                                                <td>{svc.contactName}</td>
+                                                <td>
+                                                    <lightning-formatted-date-time 
+                                                        value={svc.serviceRenderedDate}
+                                                        month="short" 
+                                                        day="2-digit" 
+                                                        year="numeric">
+                                                    </lightning-formatted-date-time>
+                                                </td>
+                                                <td class="slds-text-align_right">
+                                                    <lightning-formatted-number 
+                                                        value={svc.balanceDue} 
+                                                        format-style="currency" 
+                                                        currency-code="USD">
+                                                    </lightning-formatted-number>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr style="background-color: #f4f6f9; font-weight: bold;">
+                                            <td colspan="3" class="slds-text-align_right">TOTAL DUE:</td>
+                                            <td class="slds-text-align_right slds-text-color_error">{formattedAgencyTotal}</td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                                
+                                <p>Please remit payment at your earliest convenience. If you have questions about any of these services, please contact us.</p>
+                                <p>Thank you,<br/><strong>Northwest Furniture Bank</strong><br/>Accounts Receivable</p>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+                
+                <footer class="slds-modal__footer">
+                    <lightning-button label="Cancel" onclick={closeAgencySummaryModal}></lightning-button>
+                    
+                    <!-- Step 1 Footer: Preview Button -->
+                    <template if:false={showEmailPreview}>
+                        <lightning-button 
+                            variant="brand" 
+                            label="Preview Email" 
+                            icon-name="utility:preview"
+                            onclick={handlePreviewEmail}
+                            disabled={previewEmailDisabled}>
+                        </lightning-button>
+                    </template>
+                    
+                    <!-- Step 2 Footer: Back and Send Buttons -->
+                    <template if:true={showEmailPreview}>
+                        <lightning-button 
+                            label="← Back to Edit" 
+                            onclick={handleBackToSelect}>
+                        </lightning-button>
+                        <lightning-button 
+                            variant="brand" 
+                            label="Confirm & Send Email" 
+                            icon-name="utility:email"
+                            onclick={handleConfirmAndSend}
+                            disabled={isSendingAgencySummary}>
+                            <template if:true={isSendingAgencySummary}>
+                                <lightning-spinner alternative-text="Sending" size="small"></lightning-spinner>
+                            </template>
+                        </lightning-button>
+                    </template>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+</template>

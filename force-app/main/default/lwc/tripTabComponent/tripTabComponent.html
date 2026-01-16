@@ -1,0 +1,61 @@
+<template>
+    <div>
+        <template if:true={hasLoaded}>
+            <lightning-tabset variant="scoped" active-tab-value={defaultTabId}>
+                <template for:each={tabs} for:item="tab">
+                    <lightning-tab key={tab.name} label={tab.name} value={tab.id} onactive={handleTabActive}>
+                        <lightning-tabset variant="scoped">
+                            <lightning-tab label="Pending Truck Assignment" icon-name="utility:clock" >
+                                <div>
+                                    <button class="slds-button slds-button_brand slds-button_stretch" onclick={navigateToNewTripPage}>
+                                        <lightning-icon icon-name="utility:truck" variant="inverse" size="small"></lightning-icon>&nbsp;
+                                        Create Trip
+                                    </button>
+                                    <div class="slds-p-top_small" style="min-height: 300px;">
+                                        <lightning-datatable
+                                                max-column-width="4000"
+                                                class="datatable-full-size"
+                                                key-field="id"
+                                                data={tab.pendingData}
+                                                columns={columns_pending}
+                                                onrowaction={handleRowClick}
+                                                hide-checkbox-column>
+                                        </lightning-datatable>
+                                    </div>
+                                </div>
+                            </lightning-tab>
+                            <lightning-tab label="Active Trips" icon-name="utility:truck">
+                                <div >
+                                    <div style="min-height: 300px;">
+                                        <lightning-datatable
+                                                max-column-width="4000"
+                                                class="datatable-full-size"
+                                                key-field="id"
+                                                data={tab.activeData}
+                                                columns={columns}
+                                                hide-checkbox-column>
+                                        </lightning-datatable>
+                                    </div>   
+                                </div>
+                            </lightning-tab>
+                            <lightning-tab label="Completed Trips" icon-name="utility:success">
+                                <div >
+                                    <div style="min-height: 300px;">
+                                        <lightning-datatable
+                                                max-column-width="4000"
+                                                class="datatable-full-size"
+                                                key-field="id"
+                                                data={tab.completeData}
+                                                columns={columns}
+                                                hide-checkbox-column>
+                                        </lightning-datatable>
+                                    </div>
+                                </div>
+                            </lightning-tab>
+                        </lightning-tabset> 
+                    </lightning-tab>
+                </template>
+            </lightning-tabset>
+        </template>
+    </div>
+</template>

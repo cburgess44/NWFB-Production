@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>All_Todd_Test</fullName>
+    <columns>NAME</columns>
+    <columns>PaymentType__c</columns>
+    <columns>Payee_Type__c</columns>
+    <columns>Status__c</columns>
+    <columns>TransactionId__c</columns>
+    <columns>PaymentAmount__c</columns>
+    <columns>CREATED_DATE</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Payee_Type__c</field>
+        <operation>equals</operation>
+        <value>Other</value>
+    </filters>
+    <label>All --Todd Test</label>
+</ListView>

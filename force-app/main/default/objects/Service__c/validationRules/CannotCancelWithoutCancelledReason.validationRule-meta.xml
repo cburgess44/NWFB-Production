@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>CannotCancelWithoutCancelledReason</fullName>
+    <active>true</active>
+    <description>Cannot cancel a service without fill the cancelled reason field</description>
+    <errorConditionFormula>ISCHANGED(Status__c) &amp;&amp;  ISPICKVAL(Status__c, &apos;Cancelled&apos;) &amp;&amp; ISPICKVAL(CancelledReason__c, &apos;&apos;)</errorConditionFormula>
+    <errorMessage>You must fill the &quot;Cancelled Reason&quot; field before you cancel the service!</errorMessage>
+</ValidationRule>

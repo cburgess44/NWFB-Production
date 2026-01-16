@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>PaymentType__c</fullName>
+    <externalId>false</externalId>
+    <label>Payment Type</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Payment</fullName>
+                <default>true</default>
+                <label>Payment</label>
+            </value>
+            <value>
+                <fullName>Refund</fullName>
+                <default>false</default>
+                <label>Refund</label>
+            </value>
+            <value>
+                <fullName>ActivationFee</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>Activation Fee</label>
+            </value>
+            <value>
+                <fullName>Application Fee</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>Application Fee</label>
+            </value>
+            <value>
+                <fullName>Application Fee Refund</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>Application Fee Refund</label>
+            </value>
+            <value>
+                <fullName>EventFees</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>Event Fees</label>
+            </value>
+            <value>
+                <fullName>KokuaCrewAppFee</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>Kokua Crew App Fee</label>
+            </value>
+            <value>
+                <fullName>Kokua Crew Fees</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>Kokua Crew Fees</label>
+            </value>
+            <value>
+                <fullName>MealCredit</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>Meal Credit</label>
+            </value>
+            <value>
+                <fullName>Overpayment</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>Overpayment</label>
+            </value>
+            <value>
+                <fullName>School Fees</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>School Fees</label>
+            </value>
+            <value>
+                <fullName>StaffAppFee</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>Staff App Fee</label>
+            </value>
+            <value>
+                <fullName>StaffFees</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>Staff Fees</label>
+            </value>
+            <value>
+                <fullName>StaffPayment</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>Staff Payment</label>
+            </value>
+            <value>
+                <fullName>StudentAppFee</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>Student App Fee</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

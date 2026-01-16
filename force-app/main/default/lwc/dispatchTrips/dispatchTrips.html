@@ -1,0 +1,494 @@
+<!--
+ - Created by dudunato on 15/10/22.
+ -->
+
+<!-- Dispatch Trips -->
+<template>
+    <div>
+        <div class="slds-page-header">
+            <div class="slds-page-header__row">
+                <div class="slds-page-header__col-title">
+                    <div class="slds-media">
+                        <div class="slds-media__figure">
+                            <lightning-icon
+                                    icon-name="custom:custom20"
+                                    alternative-text="Dispatch Trips"
+                                    title="Dispatch Trips"
+                            ></lightning-icon>
+                        </div>
+                        <div class="slds-media__body">
+                            <div class="slds-page-header__name">
+                                <div class="slds-page-header__name-title">
+                                    <h1>
+                                        <span class="slds-page-header__title slds-truncate" title="Dispatch Trips"> Dispatch Trips </span>
+                                    </h1>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- <div id="date_selector" style="padding: 5px"> -->
+
+                <!-- <div class="dates-actions_control" if:false={selectedTrip}> -->
+                <div class="dates-actions_control">
+                    <!-- <div class="slds-col slds-col_bump-right"> -->
+                    <strong>
+                        <lightning-formatted-date-time value={currentDateRange.firstDaySF} year="numeric" day="2-digit"
+                                                       month="2-digit" time-zone="UTC"></lightning-formatted-date-time>
+                        &nbsp;-&nbsp;
+                        <lightning-formatted-date-time value={currentDateRange.lastDaySF} year="numeric" day="2-digit"
+                                                       month="2-digit" time-zone="UTC"></lightning-formatted-date-time>
+                    </strong>
+                    <!-- </div> -->
+                </div>
+
+                <lightning-button-group class="baseline">
+                    <template if:true={showPrevious}>
+                        <lightning-button label="< Back" icon-position="left" type="button" variant="brand-outline"
+                                          value="previous"
+                                          onclick={handleDateRangeChange}></lightning-button>
+                    </template>
+                    <lightning-button-icon variant="brand" size="medium" type="button" icon-name="standard:date_time"
+                                           tooltip="This Week" value="today"
+                                           onclick={handleDateRangeChange}></lightning-button-icon>
+                    <lightning-button label="Next >" variant="brand-outline" icon-position="left" type="button"
+                                      value="next"
+                                      onclick={handleDateRangeChange}></lightning-button>
+                </lightning-button-group>
+
+                <lightning-radio-group
+                        class="slds-m-right_small slds-m-left_small"
+                        name="locations"
+                        label=""
+                        options={locationOptions}
+                        type="button"
+                        onchange={filterOptions}
+                        value={selectedLocation}
+                ></lightning-radio-group>
+
+                <lightning-button
+                        class="baseline"
+                        label="Past trips"
+                        icon-position="left"
+                        type="button"
+                        variant="brand-outline"
+                        value="previous"
+                        onclick={showPastTrips}
+                ></lightning-button>
+                <!-- </div> -->
+            </div>
+
+        </div>
+
+        <lightning-layout multiple-rows="true">
+            <lightning-layout-item size="5" large-device-size="5" medium-device-size="12" small-device-size="12">
+                <div class="slds-m-vertical_small">
+                    <lightning-card title="Deliveries" variant="base">
+                        <div slot="actions">
+                            <!-- <lightning-button
+                                    label=" New General Delivery"
+                                    type="button"
+                                    onclick={handleGeneralDeliveryClick}
+                            ></lightning-button> -->
+                            <template if:true={generalDeliveryClickProcess}>
+                                <section
+                                        role="dialog"
+                                        tabindex="-1"
+                                        aria-modal="true"
+                                        aria-labelledby="modal-heading-01"
+                                        class="slds-modal slds-fade-in-open">
+                                    <div class="slds-modal__container">
+                                        <lightning-button-icon
+                                                icon-name="utility:close"
+                                                alternative-text="Settings"
+                                                variant="bare-inverse"
+                                                title="Close modal"
+                                                onclick={closeModal}
+                                                class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+                                        ></lightning-button-icon>
+                                        <div class="slds-modal__header">
+                                            <h1 id="modal-heading-01" class="slds-modal__title slds-hyphenate">New
+                                                Service</h1>
+                                        </div>
+                                        <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                                            <lightning-record-form
+                                                    object-api-name="Service__c"
+                                                    columns="2"
+                                                    record-type-id={recordTypeIdGeneralDelivery}
+                                                    layout-type="Full"
+                                                    value="General Delivery Created Succesfully"
+                                                    onsuccess={handleSuccessServiceCreation}
+                                                    oncancel={closeModal}
+                                                    onsubmit={handleLocationOnSave}
+                                            ></lightning-record-form>
+                                        </div>
+                                    </div>
+                                </section>
+                                <div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
+                            </template>
+
+                            <!-- <lightning-button label="New" type="button"></lightning-button> -->
+                        </div>
+
+                        <lightning-spinner if:true={loading} alternative-text="Loading"
+                                           size="small"></lightning-spinner>
+
+                        <template for:each={deliveryServices} for:item="service">
+
+                            <div class="" key={service}>
+                                <table class="slds-table slds-table_bordered slds-table_fixed-layout slds-table_resizable-cols">
+                                    <thead>
+                                    <template if:true={service.isFirstIndex}>
+                                        <tr>
+                                            <th></th>
+                                            <th>Hold</th>
+                                            <template if:true={selectedTrip}>
+                                                <th></th>
+                                            </template>
+                                            <th>Customer</th>
+                                            <th>Phone</th>
+                                            <th class="slds-truncate">City</th>
+                                            <th class="slds-truncate">Zip Code</th>
+                                            <th class="slds-truncate">SubType</th>
+                                        </tr>
+                                    </template>
+                                    </thead>
+                                    <tbody>
+                                    <tr>
+
+                                        <td class="delivery-function">
+                                            <template if:false={service.isExpanded}>
+                                                <button
+                                                        data-id={service.Id}
+                                                        data-expanded={service.isExpanded}
+                                                        onclick={handleButtonClick}
+                                                        disabled={service.areBothNull}
+                                                >>
+                                                </button>
+                                            </template>
+
+                                            <template if:true={service.isExpanded}>
+                                                <button
+                                                        data-id={service.Id}
+                                                        data-expanded={service.isExpanded}
+                                                        onclick={handleButtonClick}
+                                                        disabled={service.areBothNull}
+                                                >-
+                                                </button>
+                                            </template>
+                                        </td>
+                                        <td>
+                                            <lightning-input
+                                                    name="onHoldCheckbox"
+                                                    type="checkbox"
+                                                    variant="label-hidden"
+                                                    label=""
+                                                    value={service.Id}
+                                                    checked={service.OnHold__c}
+                                                    onchange={handleMarkServiceAsOnHold}
+                                            ></lightning-input>
+                                        </td>
+                                        <template if:true={selectedTrip}>
+                                            <td>
+                                                <lightning-input
+                                                        label=""
+                                                        type="checkbox"
+                                                        onchange={handleCheckboxChange}
+                                                        value={service.Id}
+                                                ></lightning-input>
+                                            </td>
+                                        </template>
+                                        <td class="slds-truncate">
+                                            <lightning-formatted-url
+                                                    label={service.Name}
+                                                    value={service.URL}
+                                                    tooltip="Go to Service"
+                                                    target="_blank"
+                                            ></lightning-formatted-url>
+                                        </td>
+                                        <!-- <td class="slds-truncate">{service.customerName}</td> -->
+                                        <td class="slds-truncate">{service.Phone}</td>
+                                        <td class="slds-truncate">{service.City__c}</td>
+                                        <td class="slds-truncate">{service.Zip__c}</td>
+                                        <td class="slds-truncate">{service.SubType__c}</td>
+
+                                    </tr>
+                                    </tbody>
+                                </table>
+                                <template if:true={service.isExpanded}>
+
+                                    <div>
+
+                                        <template if:false={service.PickupFieldsAreNull}>
+                                            <table class="slds-table slds-table_bordered slds-table_fixed-layout slds-table_resizable-cols sub-table"
+                                                   role="grid">
+                                                <thead>
+                                                <tr>
+                                                    <th>First Pickup Date</th>
+                                                    <th>Second Pickup Date</th>
+                                                    <th>Third Pickup Date</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+
+                                                <tr>
+                                                    <th>{service.PickupDateOne}</th>
+                                                    <th>{service.PickupDateTwo}</th>
+                                                    <th>{service.PickupDateThree}</th>
+                                                </tr>
+                                                </tbody>
+                                            </table>
+                                        </template>
+
+                                        <template if:true={service.nOfItemsBiggerThan}>
+                                            <div class="slds-card__body slds-card__body_inner ">
+                                                <lightning-tree-grid
+                                                        key-field="Id"
+                                                        hide-checkbox-column="true"
+                                                        data={service.children}
+                                                        columns={childrenColumns}
+                                                ></lightning-tree-grid>
+                                            </div>
+                                        </template>
+                                    </div>
+
+                                </template>
+                            </div>
+                        </template>
+                    </lightning-card>
+                </div>
+
+                <div class="slds-m-vertical_small">
+                    <lightning-card title="Pick ups" variant="base">
+                        <div slot="actions">
+                            <!-- <lightning-button
+                                    label="New General Pickup"
+                                    type="button"
+                                    onclick={handleGeneralPickupClick}
+                            ></lightning-button> -->
+                            <template if:true={generalPickupClickProcess}>
+                                <section
+                                        role="dialog"
+                                        tabindex="-1"
+                                        aria-modal="true"
+                                        aria-labelledby="modal-heading-02"
+                                        class="slds-modal slds-fade-in-open"
+                                >
+                                    <div class="slds-modal__container">
+                                        <lightning-button-icon
+                                                icon-name="utility:close"
+                                                alternative-text="Settings"
+                                                variant="bare-inverse"
+                                                title="Close modal"
+                                                onclick={closeModal}
+                                                class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+                                        ></lightning-button-icon>
+                                        <div class="slds-modal__header">
+                                            <h1 id="modal-heading-02" class="slds-modal__title slds-hyphenate">New
+                                                Service</h1>
+                                        </div>
+                                        <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-2">
+                                            <lightning-record-form
+                                                    object-api-name="Service__c"
+                                                    columns="2"
+                                                    record-type-id={recordTypeIdGeneralPickup}
+                                                    layout-type="Full"
+                                                    value="General Pickup Created succesfully"
+                                                    onsuccess={handleSuccessServiceCreation}
+                                                    oncancel={closeModal}
+                                                    onsubmit={handleLocationOnSave}
+                                            ></lightning-record-form>
+                                        </div>
+                                    </div>
+                                </section>
+                                <div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
+                            </template>
+                            <!-- <lightning-button
+                                    label="New Donation Pickup"
+                                    type="button"
+                                    onclick={handleDonationPickupClick}
+                            ></lightning-button> -->
+                            <template if:true={donationPickupClickProcess}>
+                                <section
+                                        role="dialog"
+                                        tabindex="-1"
+                                        aria-modal="true"
+                                        aria-labelledby="modal-heading-03"
+                                        class="slds-modal slds-fade-in-open"
+                                >
+                                    <div class="slds-modal__container">
+                                        <lightning-button-icon
+                                                icon-name="utility:close"
+                                                alternative-text="Settings"
+                                                variant="bare-inverse"
+                                                title="Close modal"
+                                                onclick={closeModal}
+                                                class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+                                        ></lightning-button-icon>
+                                        <div class="slds-modal__header">
+                                            <h1 id="modal-heading-03" class="slds-modal__title slds-hyphenate">New
+                                                Service</h1>
+                                        </div>
+                                        <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-3">
+                                            <lightning-record-form
+                                                    object-api-name="Service__c"
+                                                    columns="2"
+                                                    record-type-id={recordTypeIdDonationPickup}
+                                                    layout-type="Full"
+                                                    value="Donation Pickup Created succesfully"
+                                                    onsuccess={handleSuccessServiceCreation}
+                                                    oncancel={closeModal}
+                                                    onsubmit={handleLocationOnSave}
+                                            ></lightning-record-form>
+                                        </div>
+                                    </div>
+                                </section>
+                                <div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
+                            </template>
+                            <!-- <lightning-button label="New" type="button"></lightning-button> -->
+                        </div>
+
+                        <lightning-spinner if:true={loading} alternative-text="Loading"
+                                           size="small"></lightning-spinner>
+
+                        <template for:each={pickupServices} for:item="service">
+                            <div class="" key={service}>
+                                <table class="slds-table slds-table_bordered slds-table_fixed-layout slds-table_resizable-cols">
+                                    <thead>
+                                    <template if:true={service.isFirstIndex}>
+                                        <tr>
+                                            <th></th>
+                                            <th>Hold</th>
+                                            <template if:true={selectedTrip}>
+                                                <th></th>
+                                            </template>
+                                            <th>Customer</th>
+                                            <th>Phone</th>
+                                            <!--                                                <th>Created Date</th>-->
+                                            <th>City</th>
+                                            <th>Zip Code</th>
+                                            <th>SubType</th>
+                                        </tr>
+                                    </template>
+                                    </thead>
+                                    <tbody>
+                                    <tr>
+                                        <td>
+                                            <template if:false={service.isExpanded}>
+                                                <button data-id={service.Id} data-expanded={service.isExpanded}
+                                                        onclick={handleButtonClick} disabled={service.areBothNull}>>
+                                                </button>
+                                            </template>
+
+                                            <template if:true={service.isExpanded}>
+                                                <button data-id={service.Id} data-expanded={service.isExpanded}
+                                                        onclick={handleButtonClick} disabled={service.areBothNull}>-
+                                                </button>
+                                            </template>
+
+                                        </td>
+                                        <td>
+                                            <lightning-input
+                                                    name="onHoldCheckbox"
+                                                    type="checkbox"
+                                                    checked={service.OnHold__c}
+                                                    variant="label-hidden"
+                                                    label=""
+                                                    value={service.Id}
+                                                    onchange={handleMarkServiceAsOnHold}
+                                            ></lightning-input>
+                                        </td>
+                                        <template if:true={selectedTrip}>
+                                            <td>
+                                                <lightning-input
+                                                        type="checkbox"
+                                                        onchange={handleCheckboxChange}
+                                                        value={service.Id}
+                                                ></lightning-input>
+                                            </td>
+                                        </template>
+                                        <td class="slds-truncate">
+                                            <lightning-formatted-url label={service.Name} value={service.URL}
+                                                                     tooltip="Go to Service"
+                                                                     target="_blank"></lightning-formatted-url>
+                                        </td>
+                                        <td class="slds-truncate">{service.Phone}</td>
+                                        <!--                                                <td class="slds-truncate">{service.CreatedDate}</td>-->
+                                        <td class="slds-truncate">{service.City__c}</td>
+                                        <td class="slds-truncate">{service.Zip__c}</td>
+                                        <td class="slds-truncate">{service.SubType__c}</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                                <template if:true={service.isExpanded}>
+
+                                    <div>
+
+                                        <template if:false={service.PickupFieldsAreNull}>
+                                            <table class="slds-table slds-table_bordered slds-table_fixed-layout slds-table_resizable-cols sub-table"
+                                                   role="grid">
+                                                <thead>
+                                                <tr>
+                                                    <th>First Pickup Date</th>
+                                                    <th>Second Pickup Date</th>
+                                                    <th>Third Pickup Date</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+
+                                                <tr>
+                                                    <th>{service.PickupDateOne}</th>
+                                                    <th>{service.PickupDateTwo}</th>
+                                                    <th>{service.PickupDateThree}</th>
+                                                </tr>
+                                                </tbody>
+                                            </table>
+                                        </template>
+
+                                        <template if:true={service.nOfItemsBiggerThan}>
+                                            <div class="slds-card__body slds-card__body_inner">
+                                                <lightning-tree-grid
+                                                        key-field="Id"
+                                                        hide-checkbox-column="true"
+                                                        data={service.children}
+                                                        columns={childrenColumns}
+                                                ></lightning-tree-grid>
+                                            </div>
+                                        </template>
+                                    </div>
+
+                                </template>
+                            </div>
+                        </template>
+                    </lightning-card>
+                </div>
+            </lightning-layout-item>
+
+            <lightning-layout-item size="7" large-device-size="7" medium-device-size="12" small-device-size="12" class="slds-is-relative">
+                <lightning-spinner if:true={loading} alternative-text="Loading" size="small"></lightning-spinner>
+
+                <template if:true={selectedTrip}>
+                    <c-trip-details
+                            selected-trip={selectedTrip}
+                            oncancel={hideTripDetail}
+                            oncleanselection={cleanSelection}
+                            onstoploaded={endSpinner}
+                            onloadrelatedstops={handleLoadRelatedStops}
+                    ></c-trip-details>
+                </template>
+
+                <c-daily-trip-grid
+                        if:false={selectedTrip}
+                        for:each={structuredTrips}
+                        for:item="dailyTrips"
+                        key={dailyTrips.day}
+                        daily-trips={dailyTrips}
+                        selected-location={selectedLocation}
+                        onselected={showTripDetail}
+                        onaftersuccess={handlerAfterSuccess}
+                ></c-daily-trip-grid>
+            </lightning-layout-item>
+        </lightning-layout>
+    </div>
+</template>

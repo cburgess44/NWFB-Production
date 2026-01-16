@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Pickup_Fee_Applied__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>When this product is added to a service item record, the Donation Pickup Fee gets set to the Service record</description>
+    <externalId>false</externalId>
+    <inlineHelpText>When this product is added to a service item record, the Donation Pickup Fee gets set to the Service record</inlineHelpText>
+    <label>Pickup Fee Applied (Delete)</label>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

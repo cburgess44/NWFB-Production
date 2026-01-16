@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>DaysOutstanding__c</fullName>
+    <description>Number of days since service was rendered for records with an outstanding balance.
+
+DATE FALLBACK LOGIC (Updated Jan 2026):
+Some completed services have no ServiceRenderedDate because they never went through the Close Trip flow. This formula uses fallback dates to ensure all completed services are properly aged:
+
+1. ServiceRenderedDate__c (primary - set by Close Trip flow)
+2. ShoppingAppointmentComplete__c (for Will Call services that bypass Trip workflow)
+3. LastAppointmentDate__c (for Delivery services completed outside Trip workflow)
+4. CreatedDate (last resort)
+
+Returns null only if balance is zero.</description>
+    <externalId>false</externalId>
+    <formula>IF(
+    BalanceDue__c &gt; 0,
+    TODAY() - 
+        IF(
+            NOT(ISBLANK(ServiceRenderedDate__c)),
+            DATEVALUE(ServiceRenderedDate__c),
+            IF(
+                AND(
+                    TEXT(Subtype__c) = &quot;Will Call&quot;,
+                    NOT(ISBLANK(ShoppingAppointmentComplete__c))
+                ),
+                DATEVALUE(ShoppingAppointmentComplete__c),
+                IF(
+                    NOT(ISBLANK(LastAppointmentDate__c)),
+                    LastAppointmentDate__c,
+                    DATEVALUE(CreatedDate)
+                )
+            )
+        ),
+    null
+)</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>Days Outstanding</label>
+    <precision>18</precision>
+    <required>false</required>
+    <scale>0</scale>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

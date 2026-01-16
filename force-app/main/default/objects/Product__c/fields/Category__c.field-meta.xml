@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Category__c</fullName>
+    <externalId>false</externalId>
+    <label>Category</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Living Room</fullName>
+                <default>false</default>
+                <label>Living Room</label>
+            </value>
+            <value>
+                <fullName>Dining Room</fullName>
+                <default>false</default>
+                <label>Dining Room</label>
+            </value>
+            <value>
+                <fullName>Bedroom</fullName>
+                <default>false</default>
+                <label>Bedroom</label>
+            </value>
+            <value>
+                <fullName>Mattresses</fullName>
+                <default>false</default>
+                <label>Mattresses</label>
+            </value>
+            <value>
+                <fullName>Assorted Items</fullName>
+                <default>false</default>
+                <label>Assorted Items</label>
+            </value>
+            <value>
+                <fullName>Bedroom Furniture</fullName>
+                <default>false</default>
+                <label>Bedroom Furniture</label>
+            </value>
+            <value>
+                <fullName>Bed Frames</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>Bed Frames</label>
+            </value>
+            <value>
+                <fullName>Misc Kitchen</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>Misc Kitchen</label>
+            </value>
+            <value>
+                <fullName>Misc Toys</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>Misc Toys</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

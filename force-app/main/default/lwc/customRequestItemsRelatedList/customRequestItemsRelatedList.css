@@ -1,0 +1,24 @@
+/**
+ * Created by Eric on 18/05/2023.
+ */
+lightning-button.button {
+	--sds-c-button-brand-color-background: #fa6a02;
+    --sds-c-button-text-color: #ffffff;
+}
+
+.appointmentModal {
+     max-width: 150rem;
+     min-width: 55rem;
+}
+
+.note-tooltip{
+    white-space: normal;
+    position:absolute;
+    margin-left:-150px;
+    margin-top: -50px;
+    width:300px;
+    padding:5px;
+    background-color:#ddd;
+    z-index:999;
+    border:1px solid #000
+}

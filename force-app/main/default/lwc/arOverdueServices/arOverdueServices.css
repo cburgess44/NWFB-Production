@@ -1,0 +1,85 @@
+/* Stat boxes at top */
+.stat-box {
+    background: #f3f3f3;
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: center;
+}
+
+.stat-box.critical {
+    background: #fef0ef;
+    border-left: 4px solid #c23934;
+}
+
+.stat-box.warning {
+    background: #fef7e8;
+    border-left: 4px solid #fe9339;
+}
+
+.stat-box.caution {
+    background: #fffbe5;
+    border-left: 4px solid #f0b323;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #080707;
+}
+
+.stat-label {
+    font-size: 0.75rem;
+    color: #706e6b;
+    text-transform: uppercase;
+    margin-top: 0.25rem;
+}
+
+/* Aging color classes - applied to cells */
+.aging-critical {
+    color: #c23934 !important;
+    font-weight: bold;
+    background-color: #fef0ef !important;
+}
+
+.aging-warning {
+    color: #fe9339 !important;
+    font-weight: bold;
+    background-color: #fef7e8 !important;
+}
+
+.aging-caution {
+    color: #9d6c00 !important;
+    font-weight: bold;
+    background-color: #fffbe5 !important;
+}
+
+.aging-current {
+    color: #2e844a;
+    background-color: #ebf7e6 !important;
+}
+
+/* Row highlighting via datatable */
+:host ::ng-deep .slds-table tbody tr:hover {
+    background-color: #f3f3f3;
+}
+
+/* Modal backdrop */
+.slds-backdrop {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 9000;
+}
+
+.slds-modal {
+    z-index: 9001;
+}
+
+
+
+
+
+

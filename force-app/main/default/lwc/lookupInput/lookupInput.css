@@ -1,0 +1,68 @@
+/**
+ * Created by Alan Arantes Souza on 30/07/2020.
+ */
+
+.custom-input {
+    border: none !important;
+}
+
+.slds-input-has-icon--right .lookup-cmp-icon svg {
+    right: 1.25rem !important;
+}
+
+.slds-input-has-icon .lookup-cmp-icon svg {
+    width: 1rem !important;
+    height: 1rem !important;
+    position: absolute !important;
+    top: 50% !important;
+    margin-top: -.5rem !important;
+    fill: #9faab5 !important;
+}
+
+.slds-lookup.slds-is-open .slds-lookup__menu {
+    position: absolute;
+}
+
+.slds-lookup.slds-is-open .uiInput--input .input,
+.slds-lookup.slds-is-open .uiInput--input.input {
+    border-radius: .25rem .25rem 0 0;
+}
+
+.slds-lookup.slds-is-open .slds-lookup__menu {
+    border-radius: 0 0 .25rem .25rem;
+}
+
+.slds-lookup__item--label .slds-spinner_container {
+    position: relative;
+    width: 25px;
+    height: 18px;
+    margin-right: 10px;
+}
+
+.slds-pill__label {
+    margin-left: 5px;
+}
+
+a.textUnderline:hover,
+a.textUnderline:focus {
+    border-bottom: 1px dotted;
+    text-decoration: none;
+}
+
+.slds-popover {
+    top: -25px;
+    margin-left: 20px;
+    position: absolute;
+}
+
+.slds-has-error .slds-pill__label {
+    color: rgb(51, 51, 51);
+}
+
+.slds-form-element__label {
+
+}
+
+.no-label label {
+    visibility: hidden;
+}

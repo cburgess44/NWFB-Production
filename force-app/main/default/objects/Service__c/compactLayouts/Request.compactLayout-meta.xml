@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CompactLayout xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Request</fullName>
+    <fields>Name</fields>
+    <fields>RecordTypeId</fields>
+    <fields>SubType__c</fields>
+    <fields>Scheduling_Contact__c</fields>
+    <fields>Expiration_Date__c</fields>
+    <fields>Tag_Color__c</fields>
+    <label>Request</label>
+</CompactLayout>

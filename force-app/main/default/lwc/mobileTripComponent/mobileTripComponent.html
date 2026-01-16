@@ -1,0 +1,62 @@
+<template>
+    <lightning-card title={title}>
+        <lightning-layout>
+            <lightning-layout-item padding="around-small">
+                <p>
+                    <b>
+                        NWFB Location: &nbsp;
+                    </b>
+                    {locationName}
+                </p>
+            </lightning-layout-item>
+       </lightning-layout>
+       <lightning-layout>
+            <lightning-layout-item padding="around-small">
+                <lightning-button variant="neutral" label={buttonLabel} onclick={handleClickStartNavigation}></lightning-button>
+            </lightning-layout-item>
+       </lightning-layout>
+       <template if:true={openMap}>
+        <lightning-layout>
+            <lightning-layout-item padding="around-small">
+                <p>
+                    <b>
+                        STOP ORDER NUMBER: 1/10
+                    </b>
+                </p>
+            </lightning-layout-item>
+        </lightning-layout>
+        <lightning-layout> 
+            <lightning-layout-item >
+                <lightning-map></lightning-map>
+            </lightning-layout-item>
+        </lightning-layout>
+       <lightning-layout>
+            <lightning-layout-item padding="around-small">
+                <lightning-button variant="brand" label="Open in maps" ></lightning-button>
+                <p>
+                    <lightning-checkbox-group name="Checkbox Group"
+                        label="Items"
+                        options={options}
+                        value={value}
+                        onchange={handleChangeCheckboxGroup}>
+                    </lightning-checkbox-group>
+                </p>
+                <p class="slds-p-top_small">
+                    <b>
+                        Add stop note:
+                    </b>
+                </p>
+                <lightning-textarea name="input3" variant="label-hidden" placeholder="type here..."></lightning-textarea>
+            </lightning-layout-item>
+        </lightning-layout>
+        <lightning-layout>
+            <lightning-layout-item padding="around-small">
+                <lightning-button variant="neutral" label="Previous Stop" ></lightning-button>
+            </lightning-layout-item>
+            <lightning-layout-item padding="around-small">
+                <lightning-button variant="success" label="Complete Stop" ></lightning-button>
+            </lightning-layout-item>
+        </lightning-layout>
+       </template>
+    </lightning-card>
+</template>

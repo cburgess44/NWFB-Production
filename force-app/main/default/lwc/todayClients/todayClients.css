@@ -1,0 +1,36 @@
+/**
+ * Created by Gustavo on 14/04/23.
+ */
+
+.today-client-box{
+    width: 100%;
+    max-width: 100%;
+}
+
+.message-box {
+    border: 1px solid #ff9696;
+    border-radius: 5px;
+    padding: 5px 10px 5px 10px;
+    background: #fff2f2;
+}
+
+.appointments-box {
+    height: 100%;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.trips-box {
+    height: 100%;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.table-box {
+    gap: 10px
+}
+
+.header-title {
+    font-size: 16px;
+    font-weight: bold;
+}

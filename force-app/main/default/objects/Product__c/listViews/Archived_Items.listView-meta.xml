@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Archived_Items</fullName>
+    <columns>NAME</columns>
+    <columns>Category__c</columns>
+    <columns>Archived__c</columns>
+    <columns>Product_Code__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Archived__c</field>
+        <operation>equals</operation>
+        <value>1</value>
+    </filters>
+    <label>Archived Items</label>
+</ListView>

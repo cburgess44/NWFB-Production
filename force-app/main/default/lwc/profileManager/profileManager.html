@@ -1,0 +1,13 @@
+<!--
+ - Created by Gustavo on 26/06/23.
+ -->
+
+<!-- Profile Manager -->
+<template>
+    <c-clover-connect-profile-manager
+            if:true={contact}
+            profile-id={contact.CloverConnectProfileId__c}
+            onprofilesave={handleSaveProfile}
+            onchangeddefaultmethod={handleChangeDefaultProfile}
+    ></c-clover-connect-profile-manager>
+</template>

@@ -1,0 +1,27 @@
+/**
+ * Created by dudunato on 31/05/22.
+ */
+
+.iframeReset {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    position: relative;
+    border-radius: 0.25rem;
+    height: 35px;
+    font-family: Lato, serif;
+}
+
+iframe {
+    padding: 1px;
+    width: 100%;
+    border: none;
+    overflow: hidden;
+}
+
+.error-message {
+    font-family: var(--lwc-fontFamily);
+    font-size: 0.75rem;
+    color: rgb(234, 0, 30);
+    margin-top: var(--lwc-spacingXxxSmall, 0.125rem);
+}

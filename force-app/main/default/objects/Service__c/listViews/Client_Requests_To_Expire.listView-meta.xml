@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Client_Requests_To_Expire</fullName>
+    <columns>CREATED_DATE</columns>
+    <columns>NAME</columns>
+    <columns>Contact__c</columns>
+    <columns>Status__c</columns>
+    <columns>CaseworkerName__c</columns>
+    <columns>Agency__c</columns>
+    <columns>LastAppointmentDate__c</columns>
+    <columns>Last_Contact__c</columns>
+    <columns>Location__c</columns>
+    <columns>LAST_UPDATE</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>CREATED_DATE</field>
+        <operation>lessThan</operation>
+        <value>N_DAYS_AGO:61</value>
+    </filters>
+    <filters>
+        <field>RECORDTYPE</field>
+        <operation>equals</operation>
+        <value>Service__c.ClientRequest</value>
+    </filters>
+    <filters>
+        <field>Status__c</field>
+        <operation>equals</operation>
+        <value>Processing,Scheduled,Routing,Shopping,Delivery,Review</value>
+    </filters>
+    <label>Expired Referrals w/ Appts.</label>
+</ListView>

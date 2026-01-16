@@ -1,0 +1,21 @@
+/**
+ * Created by dudunato on 27/05/22.
+ */
+
+.form-style_default {
+    padding: 10px;
+    border-radius: 0.25rem;
+    background-color: white;
+}
+
+.alert-box__error {
+    width: 100%;
+    margin: 20px 0;
+    padding: 20px;
+    position: relative;
+    border-radius: 5px;
+    box-shadow: 0 0 15px 5px #ccc;
+    background-color: #f7a7a3;
+    color: #941814;
+    border-left: 5px solid #941814;
+}

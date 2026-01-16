@@ -1,0 +1,32 @@
+<!--
+ - Created by Gustavo on 10/04/23.
+ -->
+
+<!-- Flexible Items -->
+<template>
+    <div class="products-categories slds-grid slds-grid_align-spread slds-small-size_2-of-6 slds-medium-size_3-of-6 slds-large-size_6-of-6">
+        <template for:each={productCategories} for:item="category">
+            <template if:true={category.products}>
+                <div class="slds-grid slds-grid_vertical" key={category}>
+                    <span class="category-name">{category.label}</span>
+                    <template for:each={category.products} for:item="product">
+                        <div class="product slds-grid" key={product.id}>
+                            <div class="slds-p-right_small" >
+                                <lightning-button-icon
+                                        class="slds-text-title_bold"
+                                        icon-name="utility:add"
+                                        size="x-small"
+                                        onclick={handleAddProduct}
+                                        data-product-id={product.id}
+                                ></lightning-button-icon>
+                            </div>
+                            <div class="product-name" >
+                                <span>{product.name}</span>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </template>
+        </template>
+    </div>
+</template>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>TimeFrame__c</fullName>
+    <externalId>false</externalId>
+    <label>TimeFrame</label>
+    <required>true</required>
+    <trackTrending>false</trackTrending>
+    <type>MultiselectPicklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Morning</fullName>
+                <default>false</default>
+                <label>Morning (9am - 2pm)</label>
+            </value>
+            <value>
+                <fullName>Afternoon</fullName>
+                <default>false</default>
+                <label>Afternoon (2pm - 6pm)</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+    <visibleLines>4</visibleLines>
+</CustomField>

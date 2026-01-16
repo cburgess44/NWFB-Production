@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Client_Requests_AR</fullName>
+    <columns>CREATED_DATE</columns>
+    <columns>NAME</columns>
+    <columns>SubType__c</columns>
+    <columns>ContactName__c</columns>
+    <columns>ContactEmail__c</columns>
+    <columns>Agency__c</columns>
+    <columns>CaseworkerName__c</columns>
+    <columns>Location__c</columns>
+    <columns>Status__c</columns>
+    <columns>Date__c</columns>
+    <columns>LastAppointmentDate__c</columns>
+    <columns>ContactAttempts__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>RECORDTYPE</field>
+        <operation>equals</operation>
+        <value>Service__c.ClientRequest</value>
+    </filters>
+    <filters>
+        <field>Status__c</field>
+        <operation>equals</operation>
+        <value>Completed</value>
+    </filters>
+    <filters>
+        <field>BalanceDue__c</field>
+        <operation>greaterThan</operation>
+        <value>0</value>
+    </filters>
+    <label>Client Requests (AR)</label>
+</ListView>

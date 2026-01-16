@@ -1,0 +1,247 @@
+<!--
+ - Created by dudunato on 27/05/22.
+ -->
+
+<!-- Clover Connect Payment Form -->
+<template>
+
+    <div class="slds-is-relative form-style_default">
+        <lightning-spinner if:true={authorizingPayment} alternative-text="Loading" size="small"></lightning-spinner>
+
+        <div if:true={authorizeError} class="alert-box__error">
+            {authorizeErrorMessage}
+        </div>
+
+        <fieldset class="slds-form-element slds-m-bottom_small" if:true={enableSchedulingPlan}>
+            <legend class="slds-text-title_caps">{label.cc_SchedulingPlan}</legend>
+
+            <lightning-radio-group
+                    name="schedulingPlan"
+                    label="Scheduling"
+                    variant="label-hidden"
+                    options={schedulingOptions}
+                    type="button"
+                    value={billingPlan.timeSpan}
+                    onchange={handleSchedulingPlanChange}
+            ></lightning-radio-group>
+
+        </fieldset>
+
+        <fieldset class="slds-form-element slds-m-bottom_small" if:true={showPaymentAccounts}>
+            <legend class="slds-text-title_caps">{label.cc_PaymentAccounts}</legend>
+
+            <lightning-combobox
+                    label="Pay with"
+                    name="profile"
+                    options={accounts}
+                    value={authData.profile}
+                    onchange={handleAccountChange}
+            ></lightning-combobox>
+
+        </fieldset>
+
+        <fieldset class="slds-form-element slds-m-bottom_small" if:true={showFormType}>
+            <legend class="slds-text-title_caps">{label.cc_PaymentType}</legend>
+
+            <lightning-radio-group
+                    name="formType"
+                    label={label.cc_FormType}
+                    variant="label-hidden"
+                    options={formType}
+                    value={currentFormType}
+                    type="button"
+                    onchange={handleFormTypeChange}
+            ></lightning-radio-group>
+
+        </fieldset>
+
+        <fieldset class="slds-form-element" if:true={cardFormType}>
+            <legend class="slds-text-title_caps">{label.cc_CardDetails}</legend>
+
+            <lightning-input
+                    name="name"
+                    label={label.cc_NameOnCard}
+                    type="text"
+                    required="true"
+                    value={authData.name}
+                    onchange={handleAuthDataChange}
+            ></lightning-input>
+
+            <lightning-input
+                    if:true={enableEmailCapture}
+                    name="email"
+                    label={label.cc_Email}
+                    type="email"
+                    required="true"
+                    value={authData.email}
+                    onchange={handleAuthDataChange}
+            ></lightning-input>
+
+            <c-clover-connect-card-tokenizer
+                    name="account"
+                    onchange={handleAuthDataChange}
+            ></c-clover-connect-card-tokenizer>
+
+            <lightning-input
+                    name="expiry"
+                    label={label.cc_ExpirationDate}
+                    type="text"
+                    required="true"
+                    placeholder="mm/yy"
+                    min-length="5"
+                    max-length="5"
+                    message-when-too-long={label.cc_InvalidExpirationDate}
+                    message-when-too-short={label.cc_InvalidExpirationDate}
+                    value={authData.expiry}
+                    onchange={handleAuthDataChange}
+            ></lightning-input>
+
+            <lightning-input
+                    name="cvv2"
+                    label={label.cc_CVC}
+                    type="text"
+                    required="true"
+                    placeholder="XXX"
+                    min-length="3"
+                    max-length="4"
+                    message-when-too-long={label.cc_IncorrectCVC}
+                    message-when-too-short={label.cc_IncorrectCVC}
+                    value={authData.cvv2}
+                    onchange={handleAuthDataChange}
+            ></lightning-input>
+
+        </fieldset>
+
+        <fieldset class="slds-form-element" if:true={eCheckFormType}>
+            <legend class="slds-text-title_caps">eCheck Details</legend>
+
+            <lightning-input
+                    name="name"
+                    label={label.cc_Name}
+                    type="text"
+                    required="true"
+                    value={authData.name}
+                    onchange={handleAuthDataChange}
+            ></lightning-input>
+
+            <lightning-input
+                    if:true={enableEmailCapture}
+                    name="email"
+                    label={label.cc_Email}
+                    type="email"
+                    required="true"
+                    value={authData.email}
+                    onchange={handleAuthDataChange}
+            ></lightning-input>
+
+            <lightning-input
+                    name="bankaba"
+                    label={label.cc_RoutingNumber}
+                    type="text"
+                    required="true"
+                    min-length="9"
+                    max-length="9"
+                    message-when-too-long={label.cc_InvalidRoutingNumber}
+                    message-when-too-short={label.cc_InvalidRoutingNumber}
+                    value={authData.bankaba}
+                    onchange={handleAuthDataChange}
+            ></lightning-input>
+
+            <lightning-input
+                    name="account"
+                    label={label.cc_AccountNumber}
+                    type="text"
+                    required="true"
+                    min-length="4"
+                    max-length="17"
+                    message-when-too-short={label.cc_InvalidAccountNumberMin}
+                    message-when-too-long={label.cc_InvalidAccountNumberMax}
+                    value={authData.account}
+                    onchange={handleAuthDataChange}
+            ></lightning-input>
+
+            <lightning-input
+                    name="account"
+                    label={label.cc_ConfirmAccountNumber}
+                    type="text"
+                    required="true"
+                    pattern={authData.account}
+                    message-when-pattern-mismatch={label.cc_ConfirmAccountNotMatchingMessage}
+            ></lightning-input>
+
+        </fieldset>
+
+        <!-- TODO: Payment Method-->
+        <template if:false={profileMode}>
+            <lightning-input
+                    name="amount"
+                    label={label.cc_PaymentAmount}
+                    type="number"
+                    formatter="currency"
+                    min="1"
+                    step=".01"
+                    required="true"
+                    value={authData.amount}
+                    disabled={lockedAmount}
+                    onchange={handleAuthDataChange}
+            ></lightning-input>
+
+            <lightning-input
+                    name="makePaymentAnonymous"
+                    label={label.cc_MakePaymentAnonymous}
+                    type="checkbox"
+                    class="slds-m-top_xx-small"
+                    checked= {userFieldsManager.makePaymentAnonymous}
+                    onchange={handleUserFieldsChange}
+                    if:true={enableAnonymous}
+            ></lightning-input>
+
+            <lightning-input
+                    name="saveForFuture"
+                    label={label.cc_SavePaymentMethodForFuture}
+                    type="checkbox"
+                    class="slds-m-top_xx-small"
+                    checked={userFieldsManager.saveForFuture}
+                    onchange={handleUserFieldsChange}
+                    if:true={enableSaveForFuture}
+            ></lightning-input>
+
+            <lightning-textarea
+                    name="comments"
+                    label={label.cc_Comments}
+                    value={userFieldsManager.comments}
+                    onchange={handleUserFieldsChange}
+                    if:true={enableComments}
+            ></lightning-textarea>
+
+            <div class="slds-m-vertical_small">
+                <lightning-button
+                        label={label.cc_PayNow}
+                        variant="brand"
+                        disabled={invalidToAuthorize}
+                        onclick={handleAuthorize}
+                ></lightning-button>
+            </div>
+        </template>
+
+        <template if:true={profileMode}>
+            <div class="slds-m-vertical_small slds-text-align_center">
+                <lightning-button
+                        class="slds-m-right_xxx-small"
+                        label={label.cc_Cancel}
+                        onclick={handleProfileCancel}
+                >
+                </lightning-button>
+                <lightning-button
+                        class="slds-m-left_xxx-small"
+                        label={label.cc_SaveMethod}
+                        variant="brand"
+                        onclick={handleProfileSave}
+                ></lightning-button>
+            </div>
+        </template>
+
+
+    </div>
+
+</template>

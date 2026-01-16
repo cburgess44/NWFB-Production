@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>BlockApplicationExceptionOnInvalidDate</fullName>
+    <active>true</active>
+    <errorConditionFormula>OR(
+    AND(
+        ISPICKVAL(Type__c, &quot;Available&quot;),
+        MOD(Date__c - DATE(1900, 1, 7), 7) &gt; 1
+    ),
+    AND(
+        ISPICKVAL(Type__c, &quot;Block&quot;),
+        MOD(Date__c - DATE(1900, 1, 7), 7) &lt; 2
+    )
+)</errorConditionFormula>
+    <errorMessage>Date inside the range</errorMessage>
+</ValidationRule>

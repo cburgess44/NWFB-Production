@@ -1,0 +1,119 @@
+<!--
+ - Created by dudunato on 06/06/22.
+ -->
+
+<!-- Clover Connect Profile Manager -->
+<template>
+
+    <div class="slds-box slds-theme_default slds-is-relative">
+        <lightning-spinner if:true={loading} alternative-text="Loading" size="small"></lightning-spinner>
+
+        <div class="slds-grid slds-m-vertical_medium slds-p-bottom_x-small slds-border_bottom slds-color__border_gray-5">
+
+            <div class="slds-col slds-text-align_left">
+                <h2 class="slds-text-heading_medium">{label.cc_ManagePaymentMethods}</h2>
+            </div>
+
+            <div class="slds-col slds-text-align_right">
+                <lightning-button
+                        class="slds-m-right_xxx-small"
+                        label={actionsController.editLabel}
+                        variant={actionsController.editButtonVariant}
+                        onclick={handleEditMode}
+                ></lightning-button>
+                <lightning-button
+                        class="slds-m-left_xxx-small"
+                        label={label.cc_NewMethod}
+                        variant="brand-outline"
+                        onclick={toggleAccountForm}
+                ></lightning-button>
+            </div>
+        </div>
+
+        <div class="slds-grid slds-m-vertical_medium" if:true={actionsController.newAccountForm}>
+
+            <div class="slds-col slds-grid_align-center">
+
+                <c-clover-connect-payment-form
+                        profile-id={profileId}
+                        profile-mode="true"
+                        payment-type="card"
+                        onprofilesave={handleAccountSave}
+                        onprofilecancel={toggleAccountForm}
+                ></c-clover-connect-payment-form>
+
+            </div>
+
+        </div>
+
+        <div class="slds-grid slds-gutters">
+
+            <div class="slds-size_1-of-1 slds-text-align_center" if:true={noAccounts}>
+                {label.cc_NoPaymentMethodsFound}
+            </div>
+
+            <lightning-card
+                    for:each={accounts}
+                    for:item="acc"
+                    key={acc.key}
+                    title={acc.name}
+                    class="slds-col"
+                    if:true={showAccounts}
+            >
+                <div class="slds-m-around_medium">
+                    <p class="slds-grid slds-grid_vertical-align-center">
+                        <lightning-icon
+                                icon-name="utility:money"
+                                size="x-small"
+                        ></lightning-icon>
+                        <span>
+                            &nbsp;{acc.brand}
+                        </span>
+                    </p>
+                    <p class="slds-grid slds-grid_vertical-align-center">
+                        <lightning-icon
+                                icon-name="utility:number_input"
+                                size="x-small"
+                        ></lightning-icon>
+                        <span>
+                            &nbsp;{acc.last4}
+                        </span>
+                    </p>
+                    <p class="slds-grid slds-grid_vertical-align-center">
+                        <lightning-icon
+                                icon-name="utility:date_input"
+                                size="x-small"
+                        ></lightning-icon>
+                        <span class="slds-m-top_xxx-small">
+                            &nbsp;{acc.expiry}
+                        </span>
+                    </p>
+                </div>
+
+                <span class="default-flag" if:true={acc.default}>default</span>
+
+                <div class="slds-text-align_center" slot="footer" if:true={actionsController.editMode}>
+                    <lightning-button
+                            class="slds-m-right_xxx-small"
+                            label="Delete"
+                            variant="destructive"
+                            value={acc}
+                            onclick={deleteAccount}
+                    ></lightning-button>
+                    <lightning-button
+                            class="slds-m-left_xxx-small"
+                            label="Make Default"
+                            disabled={acc.default}
+                            value={acc}
+                            onclick={makeAccountDefault}
+                    ></lightning-button>
+                </div>
+
+            </lightning-card>
+
+        </div>
+
+
+    </div>
+
+</template>

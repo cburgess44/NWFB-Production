@@ -1,0 +1,77 @@
+<!--
+ - Created by Alan Arantes Souza on 30/07/2020.
+ -->
+
+<template>
+    <lightning-spinner
+            size="small"
+            class="slds-hide"
+            variant="brand"
+            alternative-text="Record loading. Please wait."
+    >
+    </lightning-spinner>
+    <!-- Lookup container, expanded if searching -->
+    <div class={containerStyle} data-select="single">
+        <!-- Label -->
+        <div if:true={topLabel}>
+            <label class="slds-form-element__label">
+                    <abbr if:true={required}
+                            class="slds-required"
+                            title={requiredFieldMessage}
+                    >
+                        *
+                    </abbr>
+                <span class="label-span">{topLabel}</span>
+            </label>
+        </div>
+
+        <div class="slds-form-element__control">
+                <!-- Show the input search field -->
+                <lightning-input
+                        autocomplete="chrome-off"
+                        type="search"
+                        data-id={fieldName}
+                        label={label}
+                        placeholder={inputPlaceholder}
+                        required={required}
+                        is-loading={inputSpinner}
+                        disabled={disabled}
+                        value={searchTerm}
+                        onblur={handleInputOnBlur}
+                        onchange={handleInputChange}>
+                </lightning-input>
+        </div>
+
+        <!-- Lookup dropdown -->
+        <div class="slds-lookup__menu">
+
+            <!-- Search and status indicator -->
+            <div if:true={spinnerInResultList}>
+                <div if:true={isLoading} class="slds-lookup__item--label slds-text-body--small">
+                    <div class="slds-spinner_container">
+                        <div role="status" class="slds-spinner slds-spinner--x-small">
+                            <span class="slds-assistive-text">Loading</span>
+                            <div class="slds-spinner__dot-a"></div>
+                            <div class="slds-spinner__dot-b"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Result list -->
+            <ul class="slds-lookup__list" role="listbox">
+                <template for:each={records} for:item='record'>
+                    <li key={record.Id} role="presentation" data-id={record.Id} data-name={record.Name} onclick={handleSelectedRecord}>
+                        <span class="slds-lookup__item-action slds-media" role="option">
+                            <span class="slds-media__body">
+                                <span class="slds-lookup__result-text" data-id={record.Id} data-name={record.Name}>
+                                    {record.Name} {record.description}
+                                </span>
+                            </span>
+                        </span>
+                    </li>
+                </template>
+            </ul>
+        </div>
+    </div>
+</template>

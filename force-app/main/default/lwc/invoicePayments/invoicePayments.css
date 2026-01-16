@@ -1,0 +1,23 @@
+/**
+ * Created by Gustavo on 20/07/23.
+ */
+
+
+.payment-box {
+    margin-top: 15px;
+    max-width: 25%;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.payment-box-header {
+    width: 100%;
+    background-color: #eee;
+    padding: 10px;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.payment-box-content {
+    padding: 10px 15px 10px 10px;
+}

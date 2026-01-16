@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>ARAgingBucket__c</fullName>
+    <description>Categorizes outstanding balances into aging buckets: Current (0-30 days), 31-60 Days, 61-90 Days, or 90+ Days. Blank if no balance due.
+
+Updated Jan 2026: Now uses DaysOutstanding__c which includes fallback date logic for services without ServiceRenderedDate (Will Call services use ShoppingAppointmentComplete, Delivery services use LastAppointmentDate, otherwise CreatedDate). This ensures all completed services are properly categorized.</description>
+    <externalId>false</externalId>
+    <formula>IF(
+    BalanceDue__c &lt;= 0,
+    &quot;&quot;,
+    IF(
+        ISBLANK(DaysOutstanding__c),
+        &quot;No Service Date&quot;,
+        IF(
+            DaysOutstanding__c &lt;= 30,
+            &quot;Current (0-30 Days)&quot;,
+            IF(
+                DaysOutstanding__c &lt;= 60,
+                &quot;31-60 Days&quot;,
+                IF(
+                    DaysOutstanding__c &lt;= 90,
+                    &quot;61-90 Days&quot;,
+                    &quot;90+ Days&quot;
+                )
+            )
+        )
+    )
+)</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>AR Aging Bucket</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

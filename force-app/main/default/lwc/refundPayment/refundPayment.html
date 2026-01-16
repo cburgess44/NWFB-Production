@@ -1,0 +1,124 @@
+<!--
+ - Created by Gustavo on 23/06/23.
+ -->
+
+<!-- Refund Payment -->
+<template>
+    <div class="slds-container_medium" if:true={enableModal}>
+        <section
+                role="dialog"
+                tabindex="-1"
+                aria-modal="true"
+                class="slds-modal slds-fade-in-open"
+        >
+            <div class="slds-modal__container">
+                <header class="slds-modal__header">
+                    <h2 class="slds-text-heading_medium slds-hyphenate">Refund Payment</h2>
+                </header>
+                <div class="slds-modal__content slds-p-around_medium custom-content slds-is-relative">
+                    <lightning-spinner
+                            if:true={loading}
+                            size="small"
+                            variant="brand"
+                            alternative-text="Record loading. Please wait."
+                    ></lightning-spinner>
+
+                    <div class="slds-align_absolute-center slds-m-bottom_medium">
+                        <div class="slds-text-align_center">
+                            <h3 if:false={enableSubmitPaymentButton}>
+                                Partial refunds are not allowed within 1 day of creation. The transaction must be voided.
+                            </h3>
+                        </div>
+                    </div>
+
+                    <div class="payment-box slds-p-around_large slds-align_absolute-center">
+                        <div>
+                            <div class="header-box slds-text-align_center">
+                                <h1>Payment Information</h1>
+                            </div>
+                            <div class="content-box slds-m-top_small">
+                                <span>Payment Amount: </span>
+                                <lightning-formatted-number
+                                        value={payment.PaymentAmount__c}
+                                        format-style="currency"
+                                        currency-code="USD"
+                                ></lightning-formatted-number>
+                            </div>
+                            <div>
+                                <span> Payment Date: </span>
+                                <lightning-formatted-date-time
+                                        value={payment.PaymentDate__c}
+                                        time-zone="UTC"
+                                        day="numeric"
+                                        month="short"
+                                        year="numeric"
+                                ></lightning-formatted-date-time>
+                            </div>
+                            <div>
+                                <span>Payment Method: </span>
+                                <lightning-formatted-text
+                                        value={payment.PaymentMethod__c}
+                                ></lightning-formatted-text>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="slds-align_absolute-center" if:true={enableSubmitPaymentButton}>
+                        <div class="refund-box">
+                            <lightning-input
+                                    type="text"
+                                    name="reasonForRefund"
+                                    label="Reason for refund"
+                                    max-length="255"
+                                    min-length="1"
+                                    onchange={handleInputChange}
+                                    value={paymentRefund.reasonForRefund}
+                            ></lightning-input>
+                            <lightning-input
+                                    onchange={handleInputChange}
+                                    name="PaymentAmount__c"
+                                    value={payment.PaymentAmount__c}
+                                    disabled={paymentMadeByCreditCard}
+                                    type="number"
+                                    formatter="currency"
+                                    label="Refund Amount"
+                                    min="0"
+                                    step="0.01"
+                                    max={payment.PaymentAmount__c}
+                            ></lightning-input>
+                        </div>
+                    </div>
+
+                    <div class="slds-text-align_center" if:true={paymentMadeByCreditCard}>
+                        Partial refunds of payments made by credit card are not allowed.
+                    </div>
+                </div>
+                <footer class="slds-modal__footer">
+                    <button
+                            class="slds-button slds-button_neutral"
+                            onclick={handleCancel}
+                            disabled={loading}
+                    >
+                        Cancel
+                    </button>
+                    <button
+                            class="slds-button slds-button_brand"
+                            if:true={enableSubmitPaymentButton}
+                            disabled={disableSubmitButton}
+                            onclick={handleSubmitRefund}
+                    >
+                        Submit Refund
+                    </button>
+                    <button
+                            class="slds-button slds-button_brand"
+                            if:false={enableSubmitPaymentButton}
+                            onclick={handleVoidPayment}
+                    >
+                        Void Payment
+                    </button>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </div>
+</template>

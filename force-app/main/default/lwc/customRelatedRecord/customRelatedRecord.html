@@ -1,0 +1,21 @@
+<template>
+  <template if:true={customObject.data}>
+    <template if:true={objectInfo.data}>
+      <lightning-card title={cardTitle} icon-name={iconName}>
+        <template if:true={relatedRecordId}>
+          <lightning-record-form
+            record-id={relatedRecordId}
+            object-api-name={objectName}
+            columns="2"
+            fields={fieldSet}
+            mode="readonly"
+          >
+          </lightning-record-form>
+        </template>
+      </lightning-card>
+    </template>
+  </template>
+  <template if:true={customObject.error}>
+    <!-- <c-error-panel errors={inscricao.error}></c-error-panel> -->
+  </template>
+</template>

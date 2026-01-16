@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Primary_Reason__c</fullName>
+    <externalId>false</externalId>
+    <label>Primary Reason</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Low Income</fullName>
+                <default>false</default>
+                <label>Low Income</label>
+            </value>
+            <value>
+                <fullName>Mental Disability</fullName>
+                <default>false</default>
+                <label>Mental Disability</label>
+            </value>
+            <value>
+                <fullName>Child Services</fullName>
+                <default>false</default>
+                <label>Child Services</label>
+            </value>
+            <value>
+                <fullName>Fire/Flood</fullName>
+                <default>false</default>
+                <label>Fire/Flood</label>
+            </value>
+            <value>
+                <fullName>Domestic Violence</fullName>
+                <default>false</default>
+                <label>Domestic Violence</label>
+            </value>
+            <value>
+                <fullName>Physical Disability</fullName>
+                <default>false</default>
+                <label>Physical Disability</label>
+            </value>
+            <value>
+                <fullName>Substance Abuse</fullName>
+                <default>false</default>
+                <label>Substance Abuse</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

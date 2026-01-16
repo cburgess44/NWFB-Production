@@ -1,0 +1,52 @@
+<!--
+ - Created by Gustavo on 21/06/2022.
+ -->
+
+<!-- Clover Connect Payload Log -->
+<template>
+    <div class="custom-content">
+        <div class="slds-p-around_large payload-fields" if:true={payloadFields}>
+            <h1 class="slds-text-title_bold slds-m-bottom_medium custom-title">{label.cc_PayloadFields}</h1>
+            <template for:each={payloadFields} for:item="payloadField">
+                <div key={payloadField}>
+                    <lightning-input
+                            if:false={payloadField.isCheckboxField}
+                            label={payloadField.label}
+                            type="text"
+                            read-only="true"
+                            value={payloadField.value}
+                    ></lightning-input>
+                    <lightning-input
+                            if:true={payloadField.isCheckboxField}
+                            label={payloadField.label}
+                            type="checkbox"
+                            read-only="true"
+                            checked={payloadField.value}
+                    ></lightning-input>
+                </div>
+            </template>
+        </div>
+        <div class="slds-p-around_large user-fields" if:true={userFields}>
+            <h1 class="slds-text-title slds-m-bottom_medium custom-title">{label.cc_UserFields}</h1>
+            <template for:each={userFields} for:item="userField">
+                <div key={userField}>
+                    <lightning-input
+                            if:false={userField.isCheckboxField}
+                            class="slds-m-top_small"
+                            label={userField.label}
+                            type="text"
+                            read-only="true"
+                            value={userField.value}
+                    ></lightning-input>
+                    <lightning-input
+                            if:true={userField.isCheckboxField}
+                            label={userField.label}
+                            type="checkbox"
+                            read-only="true"
+                            checked={userField.value}
+                    ></lightning-input>
+                </div>
+            </template>
+        </div>
+    </div>
+</template>

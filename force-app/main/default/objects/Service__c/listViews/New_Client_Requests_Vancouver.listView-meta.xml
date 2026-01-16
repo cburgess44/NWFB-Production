@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>New_Client_Requests_Vancouver</fullName>
+    <columns>CREATED_DATE</columns>
+    <columns>NAME</columns>
+    <columns>Contact__c</columns>
+    <columns>SubType__c</columns>
+    <columns>Agency__c</columns>
+    <columns>Caseworker__c</columns>
+    <columns>ContactAttempts__c</columns>
+    <columns>Last_Contact__c</columns>
+    <columns>Agency_Pay__c</columns>
+    <columns>Client_Pay__c</columns>
+    <columns>Location__c</columns>
+    <columns>CREATEDBY_USER</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Status__c</field>
+        <operation>equals</operation>
+        <value>Processing</value>
+    </filters>
+    <filters>
+        <field>RECORDTYPE</field>
+        <operation>equals</operation>
+        <value>Service__c.ClientRequest</value>
+    </filters>
+    <filters>
+        <field>Location__c</field>
+        <operation>equals</operation>
+        <value>Vancouver</value>
+    </filters>
+    <label>New Client Requests - Vancouver</label>
+</ListView>

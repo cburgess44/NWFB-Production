@@ -1,0 +1,86 @@
+<template>
+    <template if:true={isModalOpen}>
+        <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">]
+
+            <div class="slds-modal__container">
+                <header class="slds-modal__header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={closeModal}>
+
+                        <lightning-icon icon-name="utility:close"
+                            alternative-text="close"
+                            variant="inverse"
+                            size="small" ></lightning-icon>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+
+                    <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Schedule an appointment</h2>
+                </header>
+                <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+
+                    <!--Put Datapicker here-->
+
+                    <div class="slds-select_container">
+                        Available time slot
+                        <select class="slds-select" 
+                                onchange={selectionChangeHandler} 
+                                disabled={isPicklistDisabled}
+                                required={isAttributeRequired}>
+
+                            <option value={nextAvailableTime}>{nextAvailableTime}</option>
+
+                            <template for:each={availableTimeSlots} for:item="timeSlot">
+                                <option key={timeSlot.label} class="uiInputSelectOption" value={timeSlot.value}>{timeSlot.value}</option>
+                            </template>
+
+                        </select>
+                    </div>
+
+                    <div class="slds-select_container">
+                        Type
+                        <select class="slds-select" 
+                                onchange={selectionChangeHandler} 
+                                disabled={isPicklistDisabled}
+                                required={isAttributeRequired}>
+
+                            <option value={firstTypeItem}>{firstTypeItem}</option>
+
+                            <template for:each={types} for:item="type">
+                                <option key={type.label} class="uiInputSelectOption" value={type.value}>{type.value}</option>
+                            </template>
+                            
+                        </select>
+                    </div>
+
+
+                    <div class="slds-select_container">
+                        Status
+                        <select class="slds-select" 
+                                onchange={selectionChangeHandler} 
+                                disabled={isPicklistDisabled}
+                                required={isAttributeRequired}>
+
+                            <option value={firstStatusItem}>{firstStatusItem}</option>
+
+                            <template for:each={status} for:item="statusItem">
+                                <option key={statusItem.label} class="uiInputSelectOption" value={statusItem.value}>{statusItem.value}</option>
+                            </template>
+                            
+                        </select>
+                    </div>
+
+                    <div>
+                        <lightning-textarea name="" label="Notes" placeholder="Type notes here..."></lightning-textarea>
+                    </div>
+
+                </div>
+                
+                <footer class="slds-modal__footer">
+                    <button class="slds-button slds-button_neutral" onclick={closeModal} title="Cancel">Cancel</button>
+                    <button class="slds-button slds-button_brand" onclick={submitDetails} title="Save">Save</button>
+                </footer>
+
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+ </template>

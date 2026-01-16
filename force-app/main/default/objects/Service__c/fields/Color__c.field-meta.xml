@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Color__c</fullName>
+    <externalId>false</externalId>
+    <formula>IF( 
+AND(RecordType.DeveloperName = &apos;ClientRequest&apos;, ISPICKVAL(Pickup_type__c, &apos;Delivery&apos;) ),
+&apos;red&apos;,  
+IF(
+OR(
+RecordType.DeveloperName = &apos;ClientRequest&apos;,
+AND(RecordType.DeveloperName = &apos;ClientRequest&apos;,ISPICKVAL(Status__c, &apos;Redelivery&apos;))),
+&apos;green&apos;,
+ IF(
+AND(RecordType.DeveloperName = &apos;GeneralDelivery&apos;,  ISPICKVAL(SubType__c, &apos;HOPE&apos;) ),
+&apos;purple&apos;,
+  IF(RecordType.DeveloperName = &apos;DonationPickup&apos;,
+&apos;blue&apos;,  
+IF(RecordType.DeveloperName = &apos;GeneralDelivery&apos;,
+&apos;orange&apos;,
+&apos;black&apos;) ) ) ) )</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>Color</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

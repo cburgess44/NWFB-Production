@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Furniture_Requests</fullName>
+    <columns>NAME</columns>
+    <columns>Contact__c</columns>
+    <columns>Location__c</columns>
+    <columns>TripDate__c</columns>
+    <columns>Total_Items__c</columns>
+    <columns>TotalAmount__c</columns>
+    <columns>BalanceDue__c</columns>
+    <columns>CREATED_DATE</columns>
+    <columns>Status__c</columns>
+    <columns>CREATEDBY_USER</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>RECORDTYPE</field>
+        <operation>equals</operation>
+        <value>Service__c.DonationPickup</value>
+    </filters>
+    <label>Donation Pickup</label>
+</ListView>

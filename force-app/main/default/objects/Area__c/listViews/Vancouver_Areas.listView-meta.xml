@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Vancouver_Areas</fullName>
+    <columns>NAME</columns>
+    <columns>ZipCode__c</columns>
+    <columns>DaysOfWeek__c</columns>
+    <columns>Timeframe__c</columns>
+    <columns>Delivery__c</columns>
+    <columns>Pickup__c</columns>
+    <columns>MinimumItems__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Location__c</field>
+        <operation>equals</operation>
+        <value>NWFB - Vancouver</value>
+    </filters>
+    <label>Vancouver Areas</label>
+</ListView>

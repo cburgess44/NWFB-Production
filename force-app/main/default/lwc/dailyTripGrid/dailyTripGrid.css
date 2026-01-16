@@ -1,0 +1,65 @@
+/**
+ * Created by dudunato on 15/10/22.
+ */
+
+table, th, td {
+    border-collapse: collapse;
+    padding: 0.25rem;
+    
+    border: 1px solid #ccc;
+}
+
+table {
+    border-collapse: collapse;
+    font-size: 0.9em;
+}
+
+th {
+    text-align: center;
+}
+
+tbody tr:nth-child(odd) {
+
+}
+
+tbody tr:nth-child(even) {
+    background: white;
+}
+
+.morning-table th {
+    background: #e3f6ff;
+}
+
+.afternoon-table th {
+    background: #e0fff1;
+}
+
+.morning-table tbody tr:hover, .afternoon-table tbody tr:hover {
+    background: #e9ee8538;
+    cursor: pointer;
+}
+
+.day-box {
+}
+
+.day-box_header {
+    border: 1px solid #ccc;
+    border-bottom: none;
+    background: white;
+}
+
+.record-form {
+    position: relative;
+}
+
+.subimit-button {
+    position: absolute;
+}
+
+.completed{
+    background: yellow;
+}
+
+.grey{
+     background: #eee;
+}

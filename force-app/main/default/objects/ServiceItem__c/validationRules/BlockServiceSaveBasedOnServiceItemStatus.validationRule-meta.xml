@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>BlockServiceSaveBasedOnServiceItemStatus</fullName>
+    <active>true</active>
+    <errorConditionFormula>OR(
+AND(
+  OR(
+    ISPICKVAL(Status__c, &quot;Staged&quot;),
+    ISPICKVAL(Status__c, &quot;Not Available&quot;),
+    ISPICKVAL(Status__c, &quot;Declined&quot;)
+  ),
+  Service__r.RecordType.DeveloperName = &quot;Client Request&quot;
+),
+AND(
+    ISPICKVAL(Status__c, &quot;Loaded&quot;),
+    ISPICKVAL( Service__r.SubType__c  , &quot;Will Call&quot;),
+    Service__r.RecordType.DeveloperName = &quot;Client Request&quot;
+  
+ ))</errorConditionFormula>
+    <errorMessage>This Status is not allowed for a Client Request Service or the Client Request Service has a Sub Type of &quot;Will call&quot;</errorMessage>
+</ValidationRule>

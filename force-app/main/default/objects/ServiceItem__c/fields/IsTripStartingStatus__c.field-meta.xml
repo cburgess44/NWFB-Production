@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>IsTripStartingStatus__c</fullName>
+    <externalId>false</externalId>
+    <formula>OR(TEXT(Status__c) == &apos;Completed&apos;, 
+    TEXT(Status__c) == &apos;Not Loaded&apos;, 
+    TEXT(Status__c) == &apos;Loaded&apos;,
+    TEXT(Status__c) == &apos;Item Rejected&apos;)</formula>
+    <label>Is Trip Starting Status</label>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

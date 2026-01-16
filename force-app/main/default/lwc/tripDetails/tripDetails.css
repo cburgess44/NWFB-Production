@@ -1,0 +1,15 @@
+/**
+ * Created by dudunato on 23/10/22.
+ */
+
+.map {
+    height: 416px;
+}
+
+.no-route-box {
+    padding: 20px;
+    border: 1px solid #ffecb5;
+    color: #664d03;
+    background-color: #fff3cd;
+    text-align: center;
+}

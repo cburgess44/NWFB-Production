@@ -1,0 +1,307 @@
+<!--
+ - Created by dudunato on 15/10/22.
+ -->
+
+<!-- Daily Trip Grid -->
+<template>
+    <div class="slds-m-vertical_small slds-p-left_x-small">
+        
+        <lightning-layout multiple-rows="true" class="day-box">
+            <lightning-layout-item size="12">
+                <div class="day-box_header slds-text-align_center">
+                    <lightning-formatted-date-time value={dailyTrips.day} year="numeric" day="2-digit" month="numeric"
+                        weekday="long" time-zone="UTC"></lightning-formatted-date-time>
+                </div>
+            </lightning-layout-item>
+            
+            <lightning-layout-item size="12">
+                <lightning-layout>
+                    <lightning-layout-item size="6">
+                        <table class="morning-table">
+                            <thead>
+                                <tr>
+                                    <th colspan="10">Morning</th>
+                                </tr>
+
+                                <tr>
+                                    <th colspan="2" rowspan="2">Area</th>
+                                    <th colspan="2">Deliveries</th>
+                                    <th colspan="2">Pick Ups</th>
+                                    <th rowspan="2">Full</th>
+                                    <th rowspan="2">Truck</th>
+                                    <th rowspan="2">Driver</th>
+                                </tr>
+
+                                <tr>
+                                    <th>NWFB</th>
+                                    <th>HOPE</th>
+                                    <th>NWFB</th>
+                                    <!-- <th>SB</th> -->
+                                    <th>CORP</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                <tr for:each={dailyTrips.morningTrips} for:item="currentTrip" for:index="index"
+                                    key={currentTrip.Id} data-index={index} data-name="Morning"
+                                    onclick={handleTripSelection} class={currentTrip.class}>
+                                    <td colspan="2">
+                                        <p class="slds-text-align_center">{currentTrip.Name}</p>
+                                    </td>
+                                    <td>
+                                        <p class="slds-text-align_center">
+                                            {currentTrip.NumberOfDeliveriesOnNWFB__c}</p>
+                                    </td>
+                                    <td>
+                                        <p class="slds-text-align_center">
+                                            {currentTrip.NumberOfDeliveriesOnHOPE__c}</p>
+                                    </td>
+                                    <td>
+                                        <p class="slds-text-align_center">
+                                            {currentTrip.NumberOfPickupsOnNWFB__c}</p>
+                                    </td>
+                                    <!-- <td>
+                                        <p class="slds-text-align_center">{currentTrip.NumberOfPickupsOnSB__c}
+                                        </p>
+                                    </td> -->
+                                    <td>
+                                        <p class="slds-text-align_center">{currentTrip.NumberOfPickupsOnCORP__c}
+                                        </p>
+                                    </td>
+                                    <td>
+                                        <div class="slds-text-align_center">
+                                            <lightning-input type="Checkbox" data-index={index}
+                                                variant="label-hidden" checked={currentTrip.Full__c}
+                                                onchange={markfullOnTrip} data-name="Morning"></lightning-input>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="slds-truncate">
+                                            <p class="slds-truncate slds-text-align_center">
+                                                {currentTrip.Truck_Name_Truncate__c}
+                                            </p>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="slds-truncate">
+                                            <p class="slds-truncate slds-text-align_center">
+                                                {currentTrip.Driver_Name_Truncate__c}
+                                            </p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <template if:false={dailyTrips.allDay}>
+                            <template if:true={dailyTrips.morning}>
+                                <lightning-layout>
+                                    <lightning-layout-item size="12">
+                                        <div class="slds-p-around_xxx-small">
+                                            <button class="slds-button slds-button_brand slds-button_stretch"
+                                                disabled>
+                                                <strong>BlockOut Morning</strong>
+                                            </button>
+                                        </div>
+                                    </lightning-layout-item>
+                                </lightning-layout>
+                            </template>
+
+                            <template if:false={dailyTrips.morning}>
+                                <lightning-layout>
+                                    <lightning-layout-item size="12">
+                                        <div class="slds-p-around_xxx-small">
+                                            <button style="width: 100%" class="slds-button slds-button_outline-brand"
+                                                onclick={handleAddTrip} value={dailyTrips} data-name="Morning"
+                                                data-date={dailyTrips.day}>
+                                                <strong>+</strong>
+                                            </button>
+                                        </div>
+                                    </lightning-layout-item>
+                                </lightning-layout>
+                            </template>
+                        </template>
+
+                    </lightning-layout-item>
+
+
+                    <lightning-layout-item size="6">
+                        <table class="afternoon-table">
+                            <thead>
+                                <tr>
+                                    <th colspan="10">Afternoon</th>
+                                </tr>
+
+                                <tr>
+                                    <th colspan="2" rowspan="2">Area</th>
+                                    <th colspan="2">Deliveries</th>
+                                    <th colspan="2">Pick Ups</th>
+                                    <th rowspan="2">Full</th>
+                                    <th rowspan="2">Truck</th>
+                                    <th rowspan="2">Driver</th>
+                                </tr>
+
+                                <tr>
+                                    <th>NWFB</th>
+                                    <th>HOPE</th>
+                                    <th>NWFB</th>
+                                    <!-- <th>SB</th> -->
+                                    <th>CORP</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                <tr for:each={dailyTrips.afternoonTrips} for:item="currentTrip" for:index="index"
+                                    key={currentTrip.Id} data-index={index} data-name="Afternoon"
+                                    onclick={handleTripSelection}>
+                                    <td colspan="2">
+                                        <p class="slds-text-align_center">{currentTrip.Name}</p>
+                                    </td>
+                                    <td>
+                                        <p class="slds-text-align_center">
+                                            {currentTrip.NumberOfDeliveriesOnNWFB__c}</p>
+                                    </td>
+                                    <td>
+                                        <p class="slds-text-align_center">
+                                            {currentTrip.NumberOfDeliveriesOnHOPE__c}</p>
+                                    </td>
+                                    <td>
+                                        <p class="slds-text-align_center">
+                                            {currentTrip.NumberOfPickupsOnNWFB__c}</p>
+                                    </td>
+                                    <!-- <td>
+                                        <p class="slds-text-align_center">{currentTrip.NumberOfPickupsOnSB__c}
+                                        </p>
+                                    </td> -->
+                                    <td>
+                                        <p class="slds-text-align_center">{currentTrip.NumberOfPickupsOnCORP__c}
+                                        </p>
+                                    </td>
+                                    <td>
+                                        <div class="slds-text-align_center">
+                                            <lightning-input type="Checkbox" data-index={index}
+                                                variant="label-hidden" checked={currentTrip.Full__c}
+                                                onchange={markfullOnTrip} data-name="Afternoon">
+                                            </lightning-input>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="slds-truncate">
+                                            <p class="slds-truncate slds-text-align_center">
+                                                {currentTrip.Truck_Name_Truncate__c}
+                                            </p>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="slds-truncate">
+                                            <p class="slds-truncate slds-text-align_center">
+                                                {currentTrip.Driver_Name_Truncate__c}
+                                            </p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <template if:false={dailyTrips.allDay}>
+                            <template if:false={dailyTrips.afternoon}>
+                                <lightning-layout>
+                                    <lightning-layout-item size="12">
+                                        <div class="slds-p-around_xxx-small">
+                                            <button style="width: 100%" class="slds-button slds-button_outline-brand"
+                                                onclick={handleAddTrip} value={dailyTrips} data-name="Afternoon"
+                                                data-date={dailyTrips.day}>
+                                                <strong>+</strong>
+                                            </button>
+                                        </div>
+                                    </lightning-layout-item>
+                                </lightning-layout>
+                            </template>
+
+                            <template if:true={dailyTrips.afternoon}>
+                                <lightning-layout>
+                                    <lightning-layout-item size="12">
+                                        <div class="slds-p-around_xxx-small">
+                                            <button class="slds-button slds-button_brand slds-button_stretch"
+                                                disabled>
+                                                <strong>BlockOut Afternoon</strong>
+                                            </button>
+                                        </div>
+                                    </lightning-layout-item>
+                                </lightning-layout>
+                            </template>
+                        </template>
+                        
+                        
+                    </lightning-layout-item>
+                </lightning-layout>
+
+                <template if:true={dailyTrips.allDay}>
+                    <lightning-layout>
+                        <lightning-layout-item size="12">
+                            <div class="slds-p-around_xxx-small">
+                                <button class="slds-button slds-button_brand slds-button_stretch"
+                                    disabled>
+                                    <strong>BlockOut Day</strong>
+                                </button>
+                            </div>
+                        </lightning-layout-item>
+                    </lightning-layout>
+                </template>
+
+            </lightning-layout-item>
+        </lightning-layout>
+
+        <template if:true={showTripModal}>
+            <section role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="modal-heading-02"
+                class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container">
+                    <lightning-button-icon icon-name="utility:close" alternative-text="Settings" variant="bare-inverse"
+                        title="Close modal" onclick={closemodal}
+                        class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse">
+                    </lightning-button-icon>
+                    <div class="slds-modal__header">
+                        <h1 id="modal-heading-02" class="slds-modal__title slds-hyphenate">New Trip</h1>
+                    </div>
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-2">
+                        <lightning-record-edit-form object-api-name="Trip__c" onsuccess={handleSuccessTrip}
+                            oncancel={closemodal} layout-type="Full" >
+
+                            <!-- <lightning-input-field field-name={tripFields.NAME_FIELD} disabled="true"></lightning-input-field> -->
+
+                            <lightning-input-field field-name={tripFields.CUSTOMNAME_FIELD} required></lightning-input-field>
+
+                            <lightning-input-field field-name={tripFields.PTFRAME_FIELD} value={primaryTimeFrame}>
+                            </lightning-input-field>
+
+                            <lightning-input-field field-name={tripFields.DATE_FIELD} value={newTripDate}>
+                            </lightning-input-field>
+
+                            <lightning-input-field field-name={tripFields.LOCATION_FIELD} value={selectedLocation}></lightning-input-field>
+
+                            <lightning-input-field field-name={tripFields.DESTINATION_FIELD}></lightning-input-field>
+
+                            <lightning-input-field field-name={tripFields.TRUCK_FIELD}></lightning-input-field>
+
+                            <lightning-input-field field-name={tripFields.DRIVER_FIELD}></lightning-input-field>
+                            
+                            <lightning-input-field field-name={tripFields.COPILOT1_FIELD}></lightning-input-field>
+
+                            <lightning-input-field field-name={tripFields.COPILOT2_FIELD}></lightning-input-field>
+
+                            <lightning-input-field field-name={tripFields.FULL_FIELD}></lightning-input-field>
+
+                            <lightning-input-field field-name={tripFields.STATUS_FIELD}></lightning-input-field>
+
+
+                            <!-- <lightning-input-field field-name={tripFields.ORIGIN_FIELD}></lightning-input-field> -->
+
+                            <lightning-button  type="submit" label="Save" name="Save"></lightning-button>
+                        </lightning-record-edit-form>
+                    </div>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
+        </template>
+    </div>
+</template>

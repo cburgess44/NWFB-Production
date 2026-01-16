@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>DaysOfWeek__c</fullName>
+    <externalId>false</externalId>
+    <inlineHelpText>Not checking any means the user will be called to schedule.</inlineHelpText>
+    <label>Days of Week</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>MultiselectPicklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetName>DaysOfWeek</valueSetName>
+    </valueSet>
+    <visibleLines>4</visibleLines>
+</CustomField>

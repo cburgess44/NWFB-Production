@@ -1,0 +1,116 @@
+<!-- - Created by Gustavo on 22/06/23.
+ -->
+
+<!-- Service Payment -->
+<template>
+    <div class="slds-is-relative">
+        <lightning-spinner size="small" if:true={loading}></lightning-spinner>
+
+        <div class="slds-m-bottom_medium table-box">
+            <div class="slds-p-around_small" if:true={enableCardForm}>
+                <lightning-button
+                        variant="brand"
+                        label={managePaymentMethodsButtonLabel}
+                        onclick={handleManagePaymentMethods}
+                ></lightning-button>
+            </div>
+
+            <c-clover-connect-profile-manager
+                    if:true={enableProfileManager}
+                    profile-id={service.profileId}
+                    onprofilesave={handleChangePaymentMethods}
+                    ondeleteaccount={handleDeleteAccount}
+                    ondeleteprofile={handleDeleteProfile}
+            ></c-clover-connect-profile-manager>
+
+            <lightning-radio-group
+                    name="schedulingPlan"
+                    label="Scheduling"
+                    variant="label-hidden"
+                    options={paymentTypes}
+                    value={paymentType}
+                    type="button"
+                    class="slds-p-left_small slds-m-top_medium"
+                    onchange={handleChangePaymentType}
+            ></lightning-radio-group>
+
+            <div class="slds-p-around_medium message">{message}</div>
+
+            <!--
+                Payee
+                <div class="slds-select_container">   
+                        <select class="slds-select">
+                                <label>Payee</label>
+                                <option value="Client">Client</option>
+                                <option value="Agency">Agency</option>
+                        </select>
+                </div>
+            </div> -->
+            <div class="slds-p-horizontal_small slds-p-bottom_medium">
+                <lightning-combobox
+                        name="Payee"
+                        label="Payee"
+                        value={payee}
+                        placeholder="Select Progress"
+                        options={payeeTypes}
+                        onchange={handlePayeeChange} >
+                </lightning-combobox>
+            </div>
+
+            <c-clover-connect-payment-form
+                    if:true={enableCardForm}
+                    show-form-type="true"
+                    payment-type="card"
+                    profile-id={service.profileId}
+                    user-fields={userFields}
+                    onaftersubmit={handlePaymentMadeSuccessfully}
+            ></c-clover-connect-payment-form>
+
+            <div if:false={enableCardForm} class="slds-p-horizontal_small">
+                <lightning-input
+                        class="slds-m-bottom_medium"
+                        label="Payment Amount"
+                        step="0.01"
+                        formatter="currency"
+                        type="number"
+                        name="amount"
+                        value={manualPayment.amount}
+                        onchange={handleInputChange}
+                        min="0"
+                ></lightning-input>
+
+                <lightning-input
+                        name="checkNumber"
+                        if:true={enableCheckNumberInput}
+                        class="slds-m-bottom_large"
+                        label="Check Number"
+                        min-length="0"
+                        value={manualPayment.checkNumber}
+                        onchange={handleInputChange}
+                ></lightning-input>
+
+                <lightning-button
+                        label="Pay Now"
+                        disabled={disablePaymentManuallyButton}
+                        variant="brand"
+                        onclick={handlePayManually}
+                ></lightning-button>
+            </div>
+
+            <div class="slds-p-around_medium slds-text-title_bold title slds-m-top_medium">Payments ({payments.length})</div>
+            <lightning-datatable
+                    columns={tableColumn}
+                    data={payments}
+                    key-field="Id"
+                    onrowaction={handleRefundPayment}
+                    hide-checkbox-column
+            ></lightning-datatable>
+        </div>
+
+        <c-refund-payment
+                onafterrefund={handleRefundSuccessfully}
+                enable-modal={enableRefundModal}
+                payment={refundPayment}
+        ></c-refund-payment>
+    </div>
+</template>

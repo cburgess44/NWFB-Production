@@ -1,0 +1,18 @@
+/**
+ * Created by dudunato on 06/06/22.
+ */
+
+.default-flag {
+    display: block;
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: #bfffbf;
+    padding: 5px;
+    text-align: center;
+    width: 90px;
+    font-weight: bold;
+    border: 1px solid #cecece24;
+    border-top: none;
+    border-right: none;
+}

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CompactLayout xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>PickupDelivery</fullName>
+    <fields>Name</fields>
+    <fields>RecordTypeId</fields>
+    <fields>ContactPreferredPhone__c</fields>
+    <fields>TotalAmount__c</fields>
+    <fields>Total_Items__c</fields>
+    <fields>TripDate__c</fields>
+    <label>Pickup/Delivery</label>
+</CompactLayout>

@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>57.0</apiVersion>
+    <assignments>
+        <name>Set_new_status</name>
+        <label>Set new status</label>
+        <locationX>50</locationX>
+        <locationY>350</locationY>
+        <assignmentItems>
+            <assignToReference>GetService.Status__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Review</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>All_Items_completed</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Set_Shopping_Appointment_Complete_date</name>
+        <label>Set Shopping Appointment Complete date</label>
+        <locationX>292</locationX>
+        <locationY>950</locationY>
+        <assignmentItems>
+            <assignToReference>GetService.ShoppingAppointmentComplete__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Flow.CurrentDateTime</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>UpdateServiceStatus</targetReference>
+        </connector>
+    </assignments>
+    <decisions>
+        <name>All_Items_completed</name>
+        <label>All Items completed</label>
+        <locationX>50</locationX>
+        <locationY>458</locationY>
+        <defaultConnector>
+            <targetReference>ItensStatus</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>All_Completed</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>GetService.Total_Items__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <elementReference>GetService.ItemsCompleted__c</elementReference>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Set_Shopping_Appointment_Complete_date</targetReference>
+            </connector>
+            <label>All Completed</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Has_payments_Or_Invoice</name>
+        <label>Has payments Or Invoice</label>
+        <locationX>534</locationX>
+        <locationY>350</locationY>
+        <defaultConnector>
+            <targetReference>ServiceStatus</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>ValidToComplete</name>
+            <conditionLogic>or</conditionLogic>
+            <conditions>
+                <leftValueReference>GetService.CreatedInvoice__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>GetService.TotalPaid__c</leftValueReference>
+                <operator>GreaterThan</operator>
+                <rightValue>
+                    <numberValue>0.0</numberValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Shopping_Appointment</targetReference>
+            </connector>
+            <label>ValidToComplete</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Service_SubType</name>
+        <label>Service SubType</label>
+        <locationX>292</locationX>
+        <locationY>242</locationY>
+        <defaultConnector>
+            <targetReference>Has_payments_Or_Invoice</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>No action required</defaultConnectorLabel>
+        <rules>
+            <name>WillCall</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>GetService.SubType__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Will Call</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Set_new_status</targetReference>
+            </connector>
+            <label>WillCall</label>
+        </rules>
+    </decisions>
+    <environments>Default</environments>
+    <interviewLabel>Complete Shopping Appointment {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Complete Shopping Appointment</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>Flow</processType>
+    <recordLookups>
+        <description>Get current service data.</description>
+        <name>GetService</name>
+        <label>Get Service</label>
+        <locationX>292</locationX>
+        <locationY>134</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Service_SubType</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>recordId</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Service__c</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordUpdates>
+        <name>UpdateServiceStatus</name>
+        <label>Update Service Status</label>
+        <locationX>292</locationX>
+        <locationY>1058</locationY>
+        <connector>
+            <targetReference>CompleteShoppingAppointmentScreen</targetReference>
+        </connector>
+        <inputReference>GetService</inputReference>
+    </recordUpdates>
+    <screens>
+        <name>CompleteShoppingAppointmentScreen</name>
+        <label>Complete Shopping Appointment</label>
+        <locationX>292</locationX>
+        <locationY>1166</locationY>
+        <allowBack>false</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <fields>
+            <name>MSGCompleted</name>
+            <fieldText>&lt;p&gt;&lt;strong&gt;Shopping Appointment Completed.&lt;/strong&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <showFooter>true</showFooter>
+        <showHeader>true</showHeader>
+    </screens>
+    <screens>
+        <name>ItensStatus</name>
+        <label>Items Status</label>
+        <locationX>138</locationX>
+        <locationY>566</locationY>
+        <allowBack>false</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <fields>
+            <name>msgItemsCompleted</name>
+            <fieldText>&lt;p&gt;For the Will Call subtype, all provided items must have a status of Completed&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <showFooter>true</showFooter>
+        <showHeader>true</showHeader>
+    </screens>
+    <screens>
+        <name>ServiceStatus</name>
+        <label>Service Status</label>
+        <locationX>666</locationX>
+        <locationY>458</locationY>
+        <allowBack>false</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <fields>
+            <name>msgPaymentInvoice</name>
+            <fieldText>&lt;p&gt;&lt;span style=&quot;font-size: 14px;&quot;&gt;It is necessary to have an invoice created or payment made in order to complete an appointment&apos;&lt;/span&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <showFooter>true</showFooter>
+        <showHeader>true</showHeader>
+    </screens>
+    <screens>
+        <name>Shopping_Appointment</name>
+        <label>Shopping Appointment</label>
+        <locationX>402</locationX>
+        <locationY>458</locationY>
+        <allowBack>false</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <connector>
+            <targetReference>Set_Shopping_Appointment_Complete_date</targetReference>
+        </connector>
+        <fields>
+            <name>msgDeliverySubType</name>
+            <fieldText>&lt;p&gt;&lt;strong&gt;Did the client take any items home with them? Mark those items with a status of Completed now&lt;/strong&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <nextOrFinishButtonLabel>Complete Appointment</nextOrFinishButtonLabel>
+        <showFooter>true</showFooter>
+        <showHeader>true</showHeader>
+    </screens>
+    <start>
+        <locationX>166</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>GetService</targetReference>
+        </connector>
+    </start>
+    <status>Active</status>
+    <variables>
+        <name>recordId</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+</Flow>

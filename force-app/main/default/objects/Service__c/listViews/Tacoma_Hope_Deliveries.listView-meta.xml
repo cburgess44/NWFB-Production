@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Tacoma_Hope_Deliveries</fullName>
+    <columns>NAME</columns>
+    <columns>Contact__c</columns>
+    <columns>Status__c</columns>
+    <columns>Area__c</columns>
+    <columns>Total_Items__c</columns>
+    <columns>Tag_Color__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>RECORDTYPE</field>
+        <operation>equals</operation>
+        <value>Service__c.GeneralDelivery</value>
+    </filters>
+    <filters>
+        <field>Location__c</field>
+        <operation>equals</operation>
+        <value>Tacoma</value>
+    </filters>
+    <filters>
+        <field>SubType__c</field>
+        <operation>equals</operation>
+        <value>Hope Del.</value>
+    </filters>
+    <label>Tacoma Hope Deliveries</label>
+</ListView>

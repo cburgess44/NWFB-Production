@@ -1,0 +1,23 @@
+<!--
+ - Created by dudunato on 31/05/22.
+ -->
+
+<!-- Clover Connect Card Tokenizer -->
+<template>
+
+    <div if:true={renderIFrame} class="slds-form-element slds-m-bottom_xx-small">
+        <label class="slds-form-element__label slds-no-flex">
+            <abbr title="required" class="slds-required">*</abbr>
+            Card Number
+        </label>
+        <div class="iframeReset">
+            <iframe
+                    id="tokenFrame"
+                    name="tokenFrame"
+                    src={iFrameURL}
+            ></iframe>
+        </div>
+        <div class="error-message" if:true={invalidCreditCard}>Invalid Credit Card!</div>
+    </div>
+
+</template>

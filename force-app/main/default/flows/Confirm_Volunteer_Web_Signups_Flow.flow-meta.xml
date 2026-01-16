@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>62.0</apiVersion>
+    <description>Automatically confirm volunteer web signups by updating the Volunteer Hours status from Web Sign Up to Confirmed when a volunteer signs up for a shift</description>
+    <environments>Default</environments>
+    <interviewLabel>Confirm Volunteer Web Signups Flow {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Confirm Volunteer Web Signups Flow</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordUpdates>
+        <name>Update_Volunteer_Status_to_Confirmed</name>
+        <label>Update Volunteer Status to Confirmed</label>
+        <locationX>176</locationX>
+        <locationY>287</locationY>
+        <inputAssignments>
+            <field>GW_Volunteers__Status__c</field>
+            <value>
+                <stringValue>Confirmed</stringValue>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <start>
+        <locationX>50</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Update_Volunteer_Status_to_Confirmed</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>GW_Volunteers__Status__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Web Sign Up</stringValue>
+            </value>
+        </filters>
+        <object>GW_Volunteers__Volunteer_Hours__c</object>
+        <recordTriggerType>Create</recordTriggerType>
+        <triggerType>RecordBeforeSave</triggerType>
+    </start>
+    <status>Active</status>
+</Flow>

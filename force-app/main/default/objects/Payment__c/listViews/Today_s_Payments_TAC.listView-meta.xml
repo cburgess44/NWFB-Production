@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Today_s_Payments_TAC</fullName>
+    <columns>NAME</columns>
+    <columns>PaymentType__c</columns>
+    <columns>Status__c</columns>
+    <columns>TransactionId__c</columns>
+    <columns>PaymentAmount__c</columns>
+    <columns>CREATED_DATE</columns>
+    <columns>ServiceName__c</columns>
+    <columns>CardLast4Digits__c</columns>
+    <columns>CheckNumber__c</columns>
+    <columns>PaymentMethod__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>CREATED_DATE</field>
+        <operation>greaterThan</operation>
+        <value>2/1/2024 12:00 AM</value>
+    </filters>
+    <label>Payments w/ Service Name</label>
+</ListView>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RecordType xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>PickupAndDelivery</fullName>
+    <active>true</active>
+    <label>Pickup and Delivery</label>
+    <picklistValues>
+        <picklist>Status__c</picklist>
+        <values>
+            <fullName>Completed</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Item Rejected</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Loaded</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Not Available</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Not Delivered</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Not Loaded</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Requested</fullName>
+            <default>true</default>
+        </values>
+        <values>
+            <fullName>Shopping Declined</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Staged</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+</RecordType>

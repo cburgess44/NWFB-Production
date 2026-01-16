@@ -1,0 +1,123 @@
+<!--
+ - Created by dudunato on 06/08/22.
+ -->
+
+<!-- Manage Appointment -->
+<template>
+    <div class="slds-container_small">
+        <section class="slds-modal slds-fade-in-open" role="dialog" tabindex="-1">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header">
+                    <h4 class="slds-text-heading_medium slds-hyphenate">New Appointment</h4>
+                </header>
+                <div class="slds-modal__content slds-p-around_medium slds-is-relative">
+                    <lightning-spinner if:true={loading} alternative-text="Loading" size="small"></lightning-spinner>
+
+                    <template if:true={editMode}>
+                        <div>
+                            <c-lookup-input
+                                    name="Service__c"
+                                    s-object-name="Service__c"
+                                    field-name="Name"
+                                    label="Service"
+                                    required="true"
+                                    value={appointmentToEdit.Service__c}
+                                    onrecordselected={handleChange}
+                            ></c-lookup-input>
+                        </div>
+                        <lightning-input
+                                disabled=true
+                                name="Date__c"
+                                type="text"
+                                label="Type"
+                                required="false"
+                                value={appointmentToEdit.ServiceType__c}
+                                onchange={handleChange}
+                        ></lightning-input>
+
+                        <div>
+                            <lightning-input
+                                    name="Date__c"
+                                    type="date"
+                                    label="Date"
+                                    required="true"
+                                    value={appointmentToEdit.Date__c}
+                                    onchange={handleChange}
+                            ></lightning-input>
+                        </div>
+
+                        <div>
+                            <lightning-combobox
+                                    name="Time__c"
+                                    label="Time Slot"
+                                    options={timeSlots}
+                                    required="true"
+                                    value={appointmentToEdit.Time__c}
+                                    onchange={handleChange}
+                            ></lightning-combobox>
+                        </div>
+
+                        <div>
+                            <lightning-combobox
+                                    name="Status__c"
+                                    label="Status"
+                                    options={appointmentStatus}
+                                    required="true"
+                                    value={appointmentToEdit.Status__c}
+                                    onchange={handleChange}
+                                    validity=""
+                            ></lightning-combobox>
+                        </div>
+
+                        <div>
+<!--                            <lightning-radio-group-->
+<!--                                    name="Type__c"-->
+<!--                                    label="Type"-->
+<!--                                    options={typeOptions}-->
+<!--                                    value={appointmentToEdit.Type__c}-->
+<!--                                    type="button"-->
+<!--                                    required="true"-->
+<!--                                    message-when-value-missing="Select the type"-->
+<!--                                    onchange={handleChange}-->
+<!--                            ></lightning-radio-group>-->
+                        </div>
+
+
+                    </template>
+
+                    <div>
+                        <lightning-textarea
+                                name="Notes__c"
+                                label="Notes"
+                                value={appointmentToEdit.Notes__c}
+                                onchange={handleChange}
+                        ></lightning-textarea>
+                    </div>
+
+                </div>
+                <footer class="slds-modal__footer">
+                    <div class="slds-grid slds-grid_align-center slds-gutters slds-p-horizontal_small">
+                        <lightning-button
+                                class="slds-m-horizontal_xxx-small"
+                                variant="neutral"
+                                name="cancel"
+                                label="Cancel"
+                                title="Cancel"
+                                onclick={handleCancel}
+                        ></lightning-button>
+                        <lightning-button
+                                class="slds-m-horizontal_xxx-small"
+                                variant="brand"
+                                name="confirm"
+                                label="Save"
+                                title="save"
+                                onclick={handleSave}
+                                disabled={loading}
+                        ></lightning-button>
+                    </div>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </div>
+</template>

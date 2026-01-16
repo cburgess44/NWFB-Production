@@ -1,0 +1,105 @@
+<template>    
+    <lightning-card>  
+        <h2 class="page-title" slot="title">Assign Truck For {title}</h2>
+        <div slot="actions">
+            <lightning-button class="slds-p-right_medium" variant="neutral" label="See all trips" onclick={handleClickTripPage}></lightning-button>
+        </div> 
+        
+        <template if:false={isLoaded}>
+            <lightning-spinner alternative-text="Loading..."></lightning-spinner>
+        </template>
+        <template if:true={error}>
+            {error.body.message}
+        </template>  
+        <p>
+            <b>
+                NWFB Location: 
+            </b>
+            {locationName}
+        </p>
+        <lightning-layout>
+            <lightning-layout-item padding="around-small">
+                <div class="slds-form-element">
+                    <div class="slds-form-element__control">
+                        
+                        <template for:each={mapMarkers} for:item="mark">
+                            <div key={mark.id} class="slds-checkbox" style="display: inline !important;">
+                                <input type="checkbox" name="options" id={mark.id} value={mark.id} checked={mark.isChecked} onclick={handleCheckboxClick}/>
+                                <label class="slds-checkbox__label" for={mark.id}>
+                                <span class="slds-checkbox_faux"></span>
+                                <span class="slds-form-element__label">{mark.label}</span>
+                                </label>
+                            </div>
+                        </template>
+
+                    </div>
+                </div>
+            </lightning-layout-item>
+            <lightning-layout-item size="2" padding="around-small">
+                    <button type="button" class="slds-button slds-button_destructive" style='height: 20px' onclick={handleClickfilterMarkers} >Filter</button>
+            </lightning-layout-item>
+        </lightning-layout>
+        <lightning-layout>
+            <lightning-layout-item size="8" padding="around-small">
+                <h4>
+                    Pending
+                </h4>
+                <div style="height: 90%;">
+                    <lightning-datatable 
+                        class="datatable-full-size"
+                        key-field="dataTable"
+                        data={mapMarkers}
+                        columns={columns}
+                        onrowaction={handleRowAction}>
+                    </lightning-datatable>
+                </div>
+            </lightning-layout-item>
+            <lightning-layout-item size="4" padding="around-small">
+                <lightning-map 
+                    map-markers={mapMarkersFiltered}
+                    list-view="hidden"
+                    zoom-level="10"
+                    style="height: 500px;">     
+                </lightning-map>
+            </lightning-layout-item>
+        </lightning-layout>
+        <lightning-record-edit-form
+            object-api-name="Trip__c"
+            record-id={recordId}
+            density="Comfy"
+            onsuccess={handleSuccess} 
+            onsubmit={handleSubmit}>
+            <lightning-layout>
+                <lightning-layout-item size="3" padding="left-small">
+                    <lightning-input-field field-name="PrimaryTimeframe__c"></lightning-input-field>
+                </lightning-layout-item>
+                <lightning-layout-item size="3" padding="left-small">
+                    <lightning-input-field field-name="Truck__c"></lightning-input-field>
+                </lightning-layout-item>
+                <lightning-layout-item size="2" padding="left-small">
+                    <lightning-input-field field-name="Driver__c"></lightning-input-field>
+                </lightning-layout-item>
+                <lightning-layout-item size="2" padding="left-small">
+                    <lightning-input-field field-name="PrimaryHelper__c"></lightning-input-field>
+                </lightning-layout-item>
+                <lightning-layout-item size="2" padding="left-small">
+                    <lightning-input-field field-name="SecondaryHelper__c"></lightning-input-field>
+                </lightning-layout-item>
+            </lightning-layout>
+            <lightning-layout>
+                <lightning-layout-item size="12">
+                    <lightning-input-field field-name="NotesForDriver__c"></lightning-input-field>
+                </lightning-layout-item>
+            </lightning-layout>
+            <lightning-button 
+                class="slds-p-top_small" 
+                variant="brand" 
+                label="Assign Truck" 
+                title="Assign Truck" 
+                icon-name="utility:truck" 
+                icon-position="left" 
+                type="submit">
+            </lightning-button>
+        </lightning-record-edit-form>
+    </lightning-card>
+</template>

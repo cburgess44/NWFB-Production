@@ -1,0 +1,14 @@
+<!--
+ - Created by Gustavo on 07/03/24.
+ -->
+
+<!-- Manage Payment Methods -->
+<template>
+    <lightning-spinner size="medium" if:true={loading}></lightning-spinner>
+    <c-clover-connect-profile-manager
+            if:true={dataLoadedSuccessfully}
+            profile-id={contact.CloverConnectProfileId__c}
+            onprofilesave={handleSaveProfile}
+            onchangeddefaultmethod={handleChangeDefaultMethod}
+    ></c-clover-connect-profile-manager>
+</template>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Website_Pickup_Requestable</fullName>
+    <columns>NAME</columns>
+    <columns>Pickup_Product_Name__c</columns>
+    <columns>Website_Pickup_Requestable__c</columns>
+    <columns>Pick_up_Fee__c</columns>
+    <columns>ProductCubicFeet__c</columns>
+    <columns>ProductWeight__c</columns>
+    <columns>Product_Code__c</columns>
+    <columns>Category__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Website_Pickup_Requestable__c</field>
+        <operation>equals</operation>
+        <value>1</value>
+    </filters>
+    <label>Website Pickup Requestable</label>
+</ListView>

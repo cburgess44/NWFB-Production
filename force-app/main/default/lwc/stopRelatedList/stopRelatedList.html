@@ -1,0 +1,93 @@
+<template>
+    <!-- <template if:true={objectInfo.data}> -->
+    <template if:true={fieldValue}>
+        <template if:true={titleWithCount}>
+            <lightning-spinner if:true={loading} size="medium" alternative-text="Loading"></lightning-spinner>
+            <div class="slds-card" style="border: 1px solid rgb(221, 219, 218);">
+                <article if:true={iconName}>
+                    <div class="slds-grid">
+                        <header style="border-bottom: 1px solid rgb(221, 219, 218);border-bottom-left-radius: 0px;border-bottom-right-radius: 0px; margin-top: 0px;"
+                                class="slds-media slds-media_center slds-has-flexi-truncate slds-page-header slds-page-header_record-home">
+
+                            <div class="slds-media__figure">
+                                <lightning-icon icon-name={iconName} size="small"></lightning-icon>
+                            </div>
+
+                            <div class="slds-media__body">
+                                <h2 class="slds-card__header-title">
+                                    <a onclick={objectUrl}
+                                       target="_blank"
+                                       class="slds-card__header-link slds-truncate"
+                                       title={titleWithCount}>
+                                        <span>{titleWithCount}</span>
+                                    </a>
+                                </h2>
+                            </div>
+                        </header>
+                    </div>
+                    <div class="slds-scrollable_x" style="height:100%;">
+                        <table aria-multilineselectable="true" class="slds-table slds-table_cell-buffer slds-table_bordered">
+                            <thead>
+                            <tr class="slds-line-height_reset">
+
+                                <th class="slds-cell_action-mode" scope="col">
+                                    <div class="slds-truncate" title="Name">Name</div>
+                                </th>
+                                <th class="" scope="col">
+                                    <div class="slds-truncate" title="Service">Service</div>
+                                </th>
+                                <th class="" scope="col">
+
+                                    <div class="slds-truncate" title="Stop Order">Service Status</div>
+
+                                </th>
+                                <th class="" scope="col">
+
+                                    <div class="slds-truncate" title="Stop Order">Stop Order</div>
+
+                                </th>
+
+                                <th class="" scope="col">
+
+                                    <div class="slds-truncate" title="Record Type">Record Type</div>
+
+                                </th>
+                            </tr>
+                            </thead>
+                            <tbody class="slds-scrollable_x">
+                            <template for:each={tableData} for:item="item">
+                                <tr class="slds-hint-parent" key={item.id}>
+
+                                    <td>
+                                        <a href={item.recordUrl}>{item.Name}</a>
+                                    </td>
+                                    <td>
+                                        <a href={item.serviceUrl}>{item.ServiceName}</a>
+                                    </td>
+                                    <td>
+                                        {item.ServiceStatus}
+                                    </td>
+                                    <td>
+                                        {item.field2}
+                                    </td>
+                                    <td>
+                                        {item.field3}
+                                    </td>
+
+                                </tr>
+                            </template>
+                            </tbody>
+                        </table>
+                    </div>
+                    <footer style="text-align:center;font-size:0.8125rem;border-top-width:1px; border-top-style: solid;border-top-color: rgb(221, 219, 218);">
+                        <lightning-button
+                                label="View All"
+                                variant="base"
+                                onclick={navigateToRelatedList}>
+                        </lightning-button>
+                    </footer>
+                </article>
+            </div>
+        </template>
+    </template>
+</template>

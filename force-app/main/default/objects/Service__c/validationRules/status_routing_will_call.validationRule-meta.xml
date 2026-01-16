@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>status_routing_will_call</fullName>
+    <active>true</active>
+    <errorConditionFormula>TEXT(Status__c) = &apos;Routing&apos;  &amp;&amp; TEXT(SubType__c) = &apos;Will Call&apos;</errorConditionFormula>
+    <errorMessage>Status can not be set to routing for subtype will call</errorMessage>
+</ValidationRule>

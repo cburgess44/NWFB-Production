@@ -1,0 +1,137 @@
+<!--
+ - Created by Gustavo on 14/04/23.
+ -->
+
+<!-- Today Clients -->
+<template>
+    <lightning-card
+            class="today-client-box"
+            title="Today's Schedule" 
+    >
+        <div slot="actions" class="slds-grid">
+            <lightning-combobox
+                    placeholder="Select a location"
+                    class="slds-m-right_small"
+                    options={locationsOptions}
+                    value={locationValue}
+                    validity=""
+                    onchange={handleChangeLocation}
+                    variant="label-hidden"
+            ></lightning-combobox>
+
+            <lightning-button
+                    label="Previous Day"
+                    data-name="previous"
+                    variant="brand-outline"
+                    class="slds-m-right_xx-small"
+                    onclick={handleClickDaysButton}
+            ></lightning-button>
+
+            <lightning-input
+                    type="date"
+                    label=""
+                    value={clientDate}
+                    variant="label-hidden"
+                    onchange={handleDateChange}
+            ></lightning-input>
+
+            <lightning-button
+                    label="Next Day"
+                    data-name="next"
+                    variant="brand-outline"
+                    class="slds-m-left_xx-small"
+                    onclick={handleClickDaysButton}
+            ></lightning-button>
+        </div>
+
+        <!-- <lightning-datatable
+                if:true={enableTodayBedReport}
+                class="slds-m-around_medium"
+                columns={reportColumns}
+                data={bedReportData}
+                hide-checkbox-column
+                key-field="id"
+        ></lightning-datatable> -->
+
+        <lightning-layout
+                multiple-rows="true"
+                class="slds-size_1-of-1 slds-p-around_small"
+        >
+            <lightning-layout-item
+                    size="12"
+                    large-device-size="6"
+                    medium-device-size="12"
+                    small-device-size="12"
+                    padding="around-small"
+            >
+                <div class="appointments-box slds-is-relative">
+                    <div class="slds-grid slds-grid_align-spread slds-p-around_small">
+                        <div class="header-title">
+                            <span>Appointments</span>
+                        </div>
+
+                        <div class="header-actions">
+                            <div slot="actions" class="slds-grid">
+                                <lightning-button
+                                        label="Today's Beds"
+                                        data-name="report"
+                                        disabled={disableBedReportButton}
+                                        onclick={handleClickSFReportButton}
+                                ></lightning-button>
+                                <!--onclick={handleClickReportButton}-->
+                            </div>
+                        </div>
+                    </div>
+
+                    <lightning-spinner if:true={loading} size="small" alternative-text="Loading"></lightning-spinner>
+
+                    <div if:true={showAppointmentErrorMessage}
+                         class="message-box slds-align_absolute-center slds-m-top_medium slds-m-around_medium">
+                        <span class="slds-text-align_center message-text">There are no appointments scheduled today.</span>
+                    </div>
+
+                    <lightning-datatable
+                            if:false={showAppointmentErrorMessage}
+                            class="slds-m-around_medium"
+                            columns={appointmentsColumns}
+                            data={appointmentsFiltered}
+                            onrowaction={handleClickClientServiceReview}
+                            hide-checkbox-column
+                            key-field="id"
+                    ></lightning-datatable>
+                </div>
+            </lightning-layout-item>
+
+            <lightning-layout-item
+                    size="12"
+                    large-device-size="6"
+                    medium-device-size="12"
+                    small-device-size="12"
+                    padding="around-small"
+            >
+                <div class="trips-box" if:true={enableTripsTab}>
+                    <div class="header-title slds-p-around_small">
+                        <span>Trips</span>
+                    </div>
+
+                    <lightning-spinner if:true={loading} size="small" alternative-text="Loading"></lightning-spinner>
+
+                    <div if:true={showTripsErrorMessage}
+                         class="message-box slds-align_absolute-center slds-m-top_medium slds-m-around_medium">
+                        <span class="slds-text-align_center message-text">There are no trips scheduled today.</span>
+                    </div>
+
+                    <lightning-datatable
+                            if:false={showTripsErrorMessage}
+                            class="slds-m-around_medium"
+                            columns={tripsColumns}
+                            data={tripsFiltered}
+                            onrowaction={handleClickClientServiceReview}
+                            hide-checkbox-column
+                            key-field="id"
+                    ></lightning-datatable>
+                </div>
+            </lightning-layout-item>
+        </lightning-layout>
+    </lightning-card>
+</template>

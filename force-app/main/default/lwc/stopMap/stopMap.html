@@ -1,0 +1,31 @@
+<!--
+ - Created by Eric on 17/04/2023.
+ -->
+
+<!-- Stop Map -->
+<template>
+    <lightning-layout multiple-rows="true">
+        <lightning-layout-item size="12" class="slds-p-around_large">
+            <template if:true={showHideMapButton}>
+                <lightning-button variant="base" label="Hide Route" onclick={handleHideRoute}
+                                  class="slds-m-left_x-small"></lightning-button>
+            </template>
+            <template if:false={showCustomMap}>
+                <lightning-map class="map" list-view="hidden" map-markers={mapMarkers}></lightning-map>
+            </template>
+            <template if:true={showCustomMap}>
+                <template if:true={urlCustomMap}>
+                    <c-custom-Map
+                            iframe-url={urlCustomMap}
+                            sandbox="allow-same-origin allow-top-navigation allow-top-navigation-by-user-activation
+                             allow-scripts allow-popups allow-forms"
+                            frame-ansestors
+                    ></c-custom-Map>
+                </template>
+                <template if:false={urlCustomMap}>
+                    <div class="no-route-box">The map routes are not available.</div>
+                </template>
+            </template>
+        </lightning-layout-item>
+    </lightning-layout>
+</template>

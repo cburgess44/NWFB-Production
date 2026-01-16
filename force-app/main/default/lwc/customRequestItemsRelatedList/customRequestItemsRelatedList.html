@@ -1,0 +1,546 @@
+<template>
+    <!-- <template if:true={objectInfo.data}> -->
+        <template if:true={fieldValue}>
+            <template if:true={titleWithCount}>
+                <lightning-spinner if:true={loading} size="medium" alternative-text="Loading"></lightning-spinner>
+                <div class="slds-card" style="border: 1px solid rgb(221, 219, 218);">
+                    <article if:true={iconName}>
+                        <div class="slds-grid">
+                            <header style="border-bottom: 1px solid rgb(221, 219, 218);border-bottom-left-radius: 0px;border-bottom-right-radius: 0px; margin-top: 0px;"
+                                    class="slds-media slds-media_center slds-has-flexi-truncate slds-page-header slds-page-header_record-home">
+
+                                <div class="slds-media__figure">
+                                    <lightning-icon icon-name={iconName} size="small"></lightning-icon>
+                                </div>
+
+                                <div class="slds-media__body">
+                                    <h2 class="slds-card__header-title">
+                                        <a onclick={objectUrl}
+                                           target="_blank"
+                                           class="slds-card__header-link slds-truncate"
+                                           title={titleWithCount}>
+                                            <span>{titleWithCount}</span>
+                                        </a>
+                                    </h2>
+                                </div>
+
+                                <div class="slds-no-flex">
+
+                                    <template if:true={showNew}>
+                                        <lightning-button
+                                                label="New"
+                                                menu-alignment="right"
+                                                title="Create new record"
+                                                onclick={createNew}
+                                                class="slds-var-m-left_x-small"
+                                        ></lightning-button>
+                                    </template>
+
+                                    <lightning-button
+                                            label="Change status"
+                                            menu-alignment="right"
+                                            title="Create new record"
+                                            onclick={getSelectedRec}
+                                            class="slds-var-m-left_x-small"
+                                    ></lightning-button>
+                                    <template if:true={showAppointmentComplete}>
+                                        <lightning-button
+                                                variant="brand"
+                                                label="Complete Shopping Appointment"
+                                                title="Complete Shopping Appointment"
+                                                onclick={handleAppointmentFlow}
+                                                class="slds-var-m-left_x-small button"
+                                        ></lightning-button>
+                                    </template>
+
+                                    <!--                                    <lightning-button-menu menu-alignment='right' icon-size="x-small"-->
+                                    <!--                                        alternative-text="Mostrar mais" onselect={handleOnselect}>-->
+                                    <!--                                        <template if:true={newRecordAvailable}>-->
+                                    <!--                                            <lightning-menu-item value="new" label="New"></lightning-menu-item>-->
+                                    <!--                                        </template>-->
+                                    <!--                                        <lightning-menu-item value="viewAll" label="View All"></lightning-menu-item>-->
+                                    <!--                                    </lightning-button-menu>-->
+                                </div>
+                            </header>
+                        </div>
+                        <div class="slds-scrollable_x" style="height:100%;">
+                            <table aria-multilineselectable="true" class="slds-table slds-table_cell-buffer slds-table_bordered">
+                                <thead>
+                                <tr class="slds-line-height_reset">
+                                    <th class="" scope="col">
+                                        <div class="slds-truncate"></div>
+                                    </th>
+                                    <th class="slds-cell_action-mode" scope="col">
+                                        <div class="slds-truncate" title="Name">Name</div>
+                                    </th>
+                                    <th class="" scope="col">
+                                        <div class="slds-truncate" title="Status">Status</div>
+                                    </th>
+                                    <th class="" scope="col">
+                                        <template if:true={enableRequestedCollumn}>
+                                            <div class="slds-truncate" title="Requested">Requested</div>
+                                        </template>
+                                    </th>
+                                    
+                                    <th class="" scope="col">
+                                        <template if:true={enableProvidedCollumn}>
+                                            <div class="slds-truncate" title="Provided">Quantity</div>
+                                        </template>
+                                    </th>
+
+                                    <th class="" scope="col">
+                                        <div class="slds-truncate"></div>
+                                    </th>
+                                    <th class="" scope="col">
+                                        <div class="slds-truncate"></div>
+                                    </th>
+                                    
+                                    
+                                     <!-- <th class="" scope="col">
+                                        <template if:true={enableDeliveryQuantityButton}>
+                                            <div class="slds-truncate" title="Delivered">Delivered</div>
+                                        </template>
+                                    </th> -->
+                                    
+                                    <th class="" scope="col">
+                                        <div class="slds-truncate"></div>
+                                    </th>
+                                    
+                                   <!-- <th class="" scope="col">
+                                        <div class="slds-truncate"></div>
+                                    </th> -->
+                                    <th class="" scope="col">
+                                        <div class="slds-truncate"></div>
+                                    </th>
+                                    <th class="" scope="col">
+                                        <div class="slds-truncate"></div>
+                                    </th>
+                                    <th class="" scope="col">
+                                        <div class="slds-truncate"></div>
+                                    </th>
+                                    <th class="" scope="col">
+                                        <div class="slds-truncate"></div>
+                                    </th>
+                                    <th class="" scope="col">
+                                        <div class="slds-truncate" title="Total Price">Total Price</div>
+                                    </th>
+                                </tr>
+                                </thead>
+                                <tbody class="slds-scrollable_x">
+                                <template for:each={tableData} for:item="item">
+                                    <tr class="slds-hint-parent" key={item.id}>
+                                        <td class="slds-text-align_right slds-cell_action-mode" role="gridcell">
+                                            <lightning-input
+                                                type="checkbox"
+                                                checked={item.selected}
+                                                data-id={item.Id}
+                                                onchange={handleSelectItem}
+                                                variant="label-hidden"
+                                                label=""
+                                            ></lightning-input>
+                                        </td>
+                                        <td>
+                                            <a href={item.recordUrl}>{item.Name}</a>
+                                        </td>
+                                        <td>{item.Status__c}</td>
+                                        <td>
+                                            <lightning-formatted-number
+                                                    if:true={item.enableRequestedCollumn}
+                                                    value={item.field3}
+                                            ></lightning-formatted-number>
+                                        </td>
+                                        <td>
+                                            <lightning-formatted-number
+                                                    if:true={item.enableProvidedCollumn}
+                                                    value={item.field4}
+                                            ></lightning-formatted-number>
+                                        </td>
+
+                                        <td>
+                                            <lightning-button-icon
+                                                    if:true={item.enableProvidedQuantityButton}
+                                                    icon-name="utility:add"
+                                                    onclick={handleChangeQuantity}
+                                                    data-name="add"
+                                                    data-id={item.Id}
+                                            ><label>Quantity Add</label></lightning-button-icon>
+                                        </td>
+                                        <td>
+                                            <lightning-button-icon
+                                                    if:true={item.enableProvidedQuantityButton}
+                                                    icon-name="utility:dash"
+                                                    onclick={handleChangeQuantity}
+                                                    data-id={item.Id}
+                                                    data-name="subtract"
+                                            ><label>Quantity Subtract</label></lightning-button-icon>
+                                        </td>
+                                        
+                                        <td>
+                                            <lightning-formatted-number
+                                                    if:true={item.enableDeliveryQuantityButton}
+                                                    currency-code="USD"
+                                                    value={item.field2}
+                                                    format-style="decimal"
+                                            ></lightning-formatted-number>
+                                        </td>
+                                        <td>
+                                            <lightning-button
+                                                    class="slds-m-right_small"
+                                                    if:true={item.enableStagedButton}
+                                                    label={item.stagedButtonName}
+                                                    title={item.stagedButtonName}
+                                                    name={item.stagedButtonName}
+                                                    data-status="Staged"
+                                                    data-id={item.Id}
+                                                    onclick={handleChangeStatus}
+                                                    variant="brand"
+                                            ></lightning-button>
+                                            <lightning-button
+                                                    class="slds-m-right_small"
+                                                    if:true={item.enableNotAvailableButton}
+                                                    label={item.notAvailableButtonName}
+                                                    title={item.notAvailableButtonName}
+                                                    name={item.notAvailableButtonName}
+                                                    data-status="Not Available"
+                                                    data-id={item.Id}
+                                                    onclick={handleChangeStatus}
+                                                    variant="brand"
+                                            ></lightning-button>
+                                            <lightning-button
+                                                    class="slds-m-right_small"
+                                                    if:true={item.enableLoadedButton}
+                                                    label={item.loadedButtonName}
+                                                    title={item.loadedButtonName}
+                                                    name={item.loadedButtonName}
+                                                    data-status="Loaded"
+                                                    data-id={item.Id}
+                                                    onclick={handleChangeStatus}
+                                                    variant="brand"
+                                            ></lightning-button>
+                                            <lightning-button
+                                                    class="slds-m-right_small"
+                                                    if:true={item.enableNotLoadedButton}
+                                                    label={item.notLoadedButtonName}
+                                                    title={item.notLoadedButtonName}
+                                                    name={item.notLoadedButtonName}
+                                                    data-status="Not Loaded"
+                                                    data-id={item.Id}
+                                                    onclick={handleChangeStatus}
+                                                    variant="brand"
+                                            ></lightning-button>
+                                            <lightning-button
+                                                    class="slds-m-right_small"
+                                                    if:true={item.enableItemRejectedButton}
+                                                    label={item.itemRejectedButtonName}
+                                                    title={item.itemRejectedButtonName}
+                                                    name={item.itemRejectedButtonName}
+                                                    data-status="Item Rejected"
+                                                    data-id={item.Id}
+                                                    onclick={handleChangeStatus}
+                                                    variant="brand"
+                                            ></lightning-button>
+                                            <lightning-button
+                                                    class="slds-m-right_small"
+                                                    if:true={item.enableNotDeliveredButton}
+                                                    label={item.notDeliveredButtonName}
+                                                    title={item.notDeliveredButtonName}
+                                                    name={item.notDeliveredButtonName}
+                                                    data-status="Not Delivered"
+                                                    data-id={item.Id}
+                                                    onclick={handleChangeStatus}
+                                                    variant="brand"
+                                            ></lightning-button>
+                                            <lightning-button
+                                                    class="slds-m-right_small"
+                                                    if:true={item.enableDeclinedButton}
+                                                    label={item.declinedButtonName}
+                                                    title={item.declinedButtonName}
+                                                    name={item.declinedButtonName}
+                                                    data-status="Declined"
+                                                    data-id={item.Id}
+                                                    onclick={handleChangeStatus}
+                                                    variant="destructive"
+                                            ></lightning-button>
+                                            <lightning-button
+                                                    class="slds-m-right_small"
+                                                    if:true={item.enableCompletedButton}
+                                                    label={item.completedButtonName}
+                                                    title={item.declinedButtonName}
+                                                    name={item.declinedButtonName}
+                                                    data-status="Completed"
+                                                    data-id={item.Id}
+                                                    onclick={handleChangeStatus}
+                                                    variant="brand"
+                                            ></lightning-button>
+                                        </td>
+                                        <td>
+                                            <lightning-button
+                                                    if:true={item.ItemPhotoURL__c}
+                                                    label="View Photo"
+                                                    onclick={handleViewPhoto}
+                                                    data-id={item.Id}
+                                            ></lightning-button>
+                                        </td>
+                                        <td>
+                                            <lightning-button-icon
+                                                    label="Upload" 
+                                                    onclick={handleUploadFile}
+                                                    data-id={item.Id}
+                                                    icon-name="utility:upload"
+                                                    name="fileUpload"
+                                            ></lightning-button-icon>
+                                        </td>
+                                        <td>
+                                            <template if:true={item.enableItemNotes}>
+                                                <div class="note-icon" onmouseover={handleMouseOver} onmouseout={handleMouseOut}>
+                                                    <lightning-icon icon-name="utility:note" alternative-text="Note" size="small"></lightning-icon>
+                                                    <div class="note-tooltip slds-hide">
+                                                        {item.ItemNotes__c}
+                                                    </div>
+                                                </div>
+                                            </template>
+                                        </td>
+                                        <td>
+                                            <lightning-formatted-number
+                                                    currency-code="USD"
+                                                    value={item.Total_Fee__c}
+                                                    format-style="currency"
+                                            ></lightning-formatted-number>
+                                        </td>
+                                    </tr>
+                                </template>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <c-photo-modal
+                                if:true={enableServiceItemPhotoModal}
+                                photo-url={currentServiceItemPhotoUrl}
+                                modal-title="View Item Photo"
+                                onclosemodal={handleCloseServiceItemPhotoModal}
+                        ></c-photo-modal>
+
+                        <template if:true={openFileUpload}>
+                            <section role="dialog"
+                                     tabindex="-1"
+                                     aria-modal="true"
+                                     aria-labelledby="modal-heading-01"
+                                     class="slds-modal slds-fade-in-open"
+                            >
+                                <div class="slds-modal__container">
+                                    <lightning-icon
+                                            icon-name="utility:close"
+                                            class='slds-button slds-button_icon slds-modal__close'
+                                            variant='inverse'
+                                            alternative-text="Close"
+                                            onclick={closeModal}
+                                    ></lightning-icon>
+
+                                    <div class="slds-modal__header">
+                                        <h1 id="modal-heading-01" class="slds-modal__title slds-hyphenate">
+                                            Upload File
+                                        </h1>
+                                    </div>
+                                    <div class="slds-modal__content slds-p-around_medium"
+                                         id="modal-content-id-1"
+                                    >
+                                        <div class="slds-size_1-of-1 slds-align_absolute-center">
+                                            <lightning-file-upload
+                                                    label=""
+                                                    name="fileUploader"
+                                                    accept={acceptedFormats}
+                                                    record-id={fileUploadRecordId}
+                                                    onuploadfinished={handleUploadFinished}
+                                                    multiple
+                                            ></lightning-file-upload>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
+                        </template>
+
+                        <footer style="text-align:center;font-size:0.8125rem;border-top-width:1px; border-top-style: solid;border-top-color: rgb(221, 219, 218);">
+                            <lightning-button
+                                    label="View All"
+                                    variant="base"
+                                    onclick={navigateToRelatedList}>
+                            </lightning-button>
+                        </footer>
+                    </article>
+                </div>
+            </template>
+        </template>
+
+        <div class="slds-p-top_medium">
+            <template if:true={showFlexibleItems}>
+                <c-flexible-items
+                        show-flexible-products={showFlexibleProducts}
+                        show-staff-requestable-products={showStaffRequestableItems}
+                        service-id={recordId}
+                        onaddproduct={handleAddNewProduct}
+                ></c-flexible-items>
+            </template>
+        </div>
+    <!-- </template> -->
+
+    <template if:true={completeAppointment}>
+        <section role="dialog"
+                 tabindex="-1"
+                 aria-labelledby="modalFlow"
+                 aria-modal="true"
+                 aria-describedby="modalFlow-content-id-1"
+                 class="slds-modal slds-fade-in-open"
+        >
+            <div class="slds-modal__container appointmentModal">
+                <!-- modal header start -->
+                <header class="slds-modal__header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+                            title="Close"
+                            onclick={handleAppointmentFlow}>
+                        <lightning-icon icon-name="utility:close"
+                                        alternative-text="close"
+                                        variant="inverse"
+                                        size="small"
+                        ></lightning-icon>
+
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+
+                    <h2 id="modalflow" class="slds-text-heading_medium slds-hyphenate">Complete Shopping
+                        Appointment</h2>
+                </header>
+
+                <div class="slds-modal__content slds-var-p-around_xx-large" id="modalFlow-content-id-1">
+                    <div class="slds-modal__container appointmentModal">
+                        <lightning-flow if:true={completeAppointment} flow-api-name='CompleteShoppingAppointment'
+                                        flow-input-variables={inputVariables} onstatuschange={handleFlow}>
+                        </lightning-flow>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+    <template if:true={isShowModal}>
+        <section role="dialog"
+                 tabindex="-1"
+                 aria-labelledby="modalStatus"
+                 aria-modal="true"
+                 aria-describedby="modalStatus-content-id-1"
+                 class="slds-modal slds-fade-in-open"
+        >
+            <div class="slds-modal__container">
+                <!-- modal header start -->
+                <header class="slds-modal__header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+                            title="Close"
+                            onclick={hideShowModal}
+                    >
+                        <lightning-icon icon-name="utility:close"
+                                        alternative-text="close"
+                                        variant="inverse"
+                                        size="small"
+                        ></lightning-icon>
+
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+
+                    <h2 id="modalStatus" class="slds-text-heading_medium slds-hyphenate">Change Service Items
+                        Status</h2>
+                </header>
+
+                <!-- modal body start -->
+                <div class="slds-modal__content slds-p-around_medium" id="modalStatus-content-id-1">
+                    <p>Select new status</p>
+                    <lightning-combobox
+                            name="progress"
+                            label="Status"
+                            value=""
+                            placeholder="Select status"
+                            options={options}
+                            onchange={handleChange}
+                            required
+                            validity=""
+                    ></lightning-combobox>
+                </div>
+
+                <!-- modal footer start-->
+                <footer class="slds-modal__footer">
+                    <button
+                            class="slds-button slds-button_neutral"
+                            onclick={hideShowModal}
+                    >Cancel
+                    </button>
+
+                    <lightning-button
+                            variant="brand"
+                            label="Update status"
+                            title="Update status"
+                            onclick={saveNewStatus}
+                            class="slds-m-left_x-small"
+                    ></lightning-button>
+                </footer>
+
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+
+
+    <template if:true={isShowNotesModal}>
+        <section role="dialog"
+                 tabindex="-1"
+                 aria-labelledby="modalStatus"
+                 aria-modal="true"
+                 aria-describedby="modalStatus-content-id-1"
+                 class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <!-- modal header start -->
+                <header class="slds-modal__header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+                            title="Close"
+                            onclick={hideShowNotesModal}>
+
+                        <lightning-icon icon-name="utility:close"
+                                        alternative-text="close"
+                                        variant="inverse"
+                                        size="small"
+                        ></lightning-icon>
+
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+
+                    <h2 id="modalNoteStatus" class="slds-text-heading_medium slds-hyphenate">Item Notes</h2>
+                </header>
+
+                <!-- modal body start -->
+                <div class="slds-modal__content slds-p-around_medium" id="modalNoteStatus-content-id-1">
+
+                    <lightning-textarea name="notes" label={notesLabel} value={notesValue}
+                                        message-when-value-missing="This field is required."
+                                        required>
+
+                    </lightning-textarea>
+                </div>
+
+                <!-- modal footer start-->
+                <footer class="slds-modal__footer">
+                    <button class="slds-button slds-button_neutral" onclick={hideShowNotesModal}>Cancel</button>
+
+                    <lightning-button
+                            variant="brand"
+                            label="Save Notes And Update Status"
+                            title="Save Notes And Update Status"
+                            onclick={saveNewStatusAndNotes}
+                            class="slds-m-left_x-small"
+                    ></lightning-button>
+                </footer>
+
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+</template>

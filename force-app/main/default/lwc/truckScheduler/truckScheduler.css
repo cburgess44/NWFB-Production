@@ -1,0 +1,21 @@
+h4 {
+    margin-bottom: 20px;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 300 !important;
+    font-size: 18px;
+    margin-top: 10px;
+}
+.page-title {
+    padding: 0px;
+    font-size: 26px;
+    letter-spacing: -1px;
+    display: block;
+    color: #666;
+    margin: 0px 0px 15px 0px;
+    font-weight: 300;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 300 !important;
+}
+.datatable-full-size {
+    width: 100% !important;
+}

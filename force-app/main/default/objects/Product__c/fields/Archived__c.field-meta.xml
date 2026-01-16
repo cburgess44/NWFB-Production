@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Archived__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Designates products not currently used</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Archived products are not currently used for services</inlineHelpText>
+    <label>Archived</label>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

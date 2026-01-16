@@ -1,0 +1,33 @@
+<!--
+ - Created by dudunato on 01/08/22. 
+ -->
+
+<template>
+    <div class="slds-is-relative">
+        <lightning-spinner if:true={loading} alternative-text="Loading" size="small"></lightning-spinner>
+
+        <div class="calendar slds-is-relative" lwc:dom="manual">
+
+        </div>
+
+        <template if:true={managingAppointment}>
+            <c-manage-appointment
+                    service={request}
+                    edit-mode={appointmentToManage.Id}
+                    time-slots={timePicklistValues}
+                    appointment={appointmentToManage}
+                    onclose={closeModal}
+                    appointment-status={statusPicklistValues}
+                    onsaved={handleNewAppointment}
+            ></c-manage-appointment>
+        </template>
+
+        <div class="context-menu">
+            <div class="item" data-action="new" onclick={handleContextMenuAction}>New</div>
+            <div class="item" data-action="rescheduled" onclick={handleContextMenuAction}>Reschedule</div>
+            <div class="item" data-action="noshow" onclick={handleContextMenuAction}>No Show</div>
+            <div class="item" data-action="delete" onclick={handleContextMenuAction}>Cancel</div>
+        </div>
+
+    </div>
+</template>

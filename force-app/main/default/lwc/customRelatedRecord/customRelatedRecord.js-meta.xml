@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>51.0</apiVersion>
+    <isExposed>true</isExposed>
+    <targets>
+        <target>lightning__AppPage</target>
+        <target>lightning__RecordPage</target>
+        <target>lightning__HomePage</target>
+        <target>lightningCommunity__Page</target>
+        <target>lightningCommunity__Default</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig
+      targets="lightningCommunity__Default"
+    >
+            <property
+        name="recordId"
+        type="String"
+        label="Record ID"
+        description="Colocar o parâmetro {!recordId}."
+      />
+      <property
+        name="relatedField"
+        type="String"
+        label="Related Field Name"
+        description="Colocar o parâmetro Ex: Opportunity.customField__c."
+      /><property
+        name="cardName"
+        type="String"
+        label="Card Name"
+        description=""
+      />
+      <property
+        name="objectName"
+        type="String"
+        label="Related Object Name"
+        description="Colocar o parâmetro CustomObject__c."
+      />
+        </targetConfig>
+        <targetConfig
+      targets="lightning__RecordPage"
+    >
+      <property
+        name="relatedField"
+        type="String"
+        label="Related Field Name"
+        description="Colocar o parâmetro Ex: Opportunity.customField__c."
+      />
+      <property
+        name="cardName"
+        type="String"
+        label="Card Name"
+        description=""
+      />
+      <property
+        name="objectName"
+        type="String"
+        label="Related Object Name"
+        description="Colocar o parâmetro CustomObject__c."
+      />
+      <property
+        label="Field Set Name"
+        name="fieldSetName"
+        type="String"
+        description="field set name"
+      />
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>

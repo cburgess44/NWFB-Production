@@ -1,0 +1,12 @@
+<template>
+    <template if:true={hasLoaded}>
+        <lightning-datatable
+            max-column-width="4000"
+            class="datatable-full-size"
+            key-field="id"
+            data={tab}
+            columns={columns}
+            hide-checkbox-column>
+    </lightning-datatable>
+    </template>
+</template>

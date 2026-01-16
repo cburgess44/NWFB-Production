@@ -1,0 +1,26 @@
+<!--
+ - Created by Gustavo on 14/02/24.
+ -->
+
+<!-- Clone Service -->
+<template>
+    <div class="slds-is-relative">
+        <lightning-spinner if:true={loading} size="medium"></lightning-spinner>
+
+        <div class="header slds-p-around_medium slds-align_absolute-center">
+            <span>New Service: {service.recordTypeName}</span>
+        </div>
+
+        <div class="slds-p-around_medium">
+            <lightning-record-form
+                    object-api-name="Service__c"
+                    record-id={service.Id}
+                    record-type-id={service.RecordTypeId}
+                    layout-type="Full"
+                    columns="2"
+                    oncancel={handleCancel}
+                    onsubmit={handleSubmit}
+            ></lightning-record-form>
+        </div>
+    </div>
+</template>

@@ -1,0 +1,20 @@
+/**
+ * Created by Gustavo on 23/06/23.
+ */
+
+.payment-box {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: #ddd;
+    width: 50%;
+}
+
+.header-box {
+    border-bottom: 1px solid black;
+    border-radius: 0;
+    font-size: 14px;
+}
+
+.refund-box {
+    width: 50%;
+}

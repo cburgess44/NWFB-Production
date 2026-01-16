@@ -1,0 +1,294 @@
+<!--
+ - Created by dudunato on 23/10/22.
+ -->
+
+<!-- Trip Details -->
+<template>
+    <div class="slds-m-vertical_small slds-p-left_x-small">
+        <lightning-spinner size="medium" if:true={loading}></lightning-spinner>
+        <lightning-card title="Trip Details" variant="base">
+            <lightning-button
+                    label="Trip Detail"
+                    variant="brand"
+                    onclick={navigateToRecordPage}
+                    slot="actions"
+            ></lightning-button>
+
+            <lightning-button
+                    label="Optimize Route"
+                    variant="brand"
+                    onclick={handleOptimize}
+                    slot="actions"
+            ></lightning-button>
+
+            <lightning-record-edit-form
+                    object-api-name="Trip__c"
+                    density="comfy"
+                    onsuccess={handleSuccessTrip}
+                    record-id={selectedTrip.Id}
+            >
+                <div if:true={isLoading} class="slds-lookup__item_label slds-text-body_small">
+                    <div class="slds-spinner_container">
+                        <div role="status" class="slds-spinner slds-spinner_x-small">
+                            <span class="slds-assistive-text">Loading</span>
+                            <div class="slds-spinner__dot-a"></div>
+                            <div class="slds-spinner__dot-b"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="slds-card__body slds-card__body_inner">
+                    <lightning-layout multiple-rows="true">
+                        <lightning-layout-item size="6">
+                            <lightning-input-field
+                                    field-name={tripFields.PTFRAME_FIELD}
+                                    value={selectedTrip.PrimaryTimeframe__c}
+                                    onchange={handleTripChange}
+                            ></lightning-input-field>
+
+                            <lightning-input-field
+                                    field-name={tripFields.NAME_FIELD}
+                                    value={selectedTrip.Name}
+                                    required
+                                    onchange={handleTripChange}
+                            ></lightning-input-field>
+
+                            <lightning-input-field
+                                    field-name={tripFields.DATE_FIELD}
+                                    value={selectedTrip.Date__c}
+                                    required
+                                    onchange={handleTripChange}
+                            ></lightning-input-field>
+
+                            <lightning-input-field
+                                    field-name={tripFields.TRUCK_FIELD}
+                                    value={selectedTrip.Truck__c}
+                                    onchange={handleTripChange}
+                            ></lightning-input-field>
+
+                            <lightning-input-field
+                                    field-name={tripFields.LOCATION_FIELD}
+                                    value={selectedTrip.Location__c}
+                                    onchange={handleTripChange}
+                            ></lightning-input-field>
+
+                            <lightning-input-field
+                                    field-name={tripFields.DRIVER_FIELD}
+                                    value={selectedTrip.Driver__c}
+                                    onchange={handleTripChange}
+                            ></lightning-input-field>
+
+                            <lightning-input-field
+                                    field-name={tripFields.ORIGIN_FIELD}
+                                    value={selectedTrip.Origin__c}
+                                    onchange={handleTripChange}
+                            ></lightning-input-field>
+
+                            <lightning-input-field
+                                    field-name={tripFields.FULL_FIELD}
+                                    value={selectedTrip.Ful__c}
+                                    onchange={handleTripChange}
+                            ></lightning-input-field>
+
+                            <lightning-input-field
+                                    field-name={tripFields.STATUS_FIELD}
+                                    value={selectedTrip.Status__c}
+                                    onchange={handleTripChange}
+                            ></lightning-input-field>
+                        </lightning-layout-item>
+
+                        <lightning-layout-item size="6" class="slds-p-around_x-small">
+
+                            <template if:true={showHideMapButton}>
+                                <lightning-button
+                                        variant="base"
+                                        label="Hide Route"
+                                        onclick={handleHideRoute}
+                                        class="slds-m-left_x-small"
+                                ></lightning-button>
+                            </template>
+
+                            <template if:false={showCustomMap}>
+
+                                <lightning-map class="map" list-view="hidden" map-markers={mapMarkers}></lightning-map>
+                            </template>
+
+                            <template if:true={showCustomMap}>
+                                <c-custom-Map
+                                        iframe-url={urlCustomMap}
+                                        sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
+                                ></c-custom-Map>
+                            </template>
+
+                            <lightning-layout-item size="12" class="slds-p-around_x-small slds-grid slds-gutters">
+                                <p class="slds-col slds-size_2-of-6"><b>Google Route Time: {selectedTrip.GoogleRouteTime__c}</b></p>
+                                <p class="slds-col slds-size_2-of-6"><b>Total Stop Time: {selectedTrip.TotalStopTime__c}</b></p>
+                                <p class="slds-col slds-size_2-of-6"><b>Calculated Total Time Minutes:
+                                    {selectedTrip.CalculatedTotalTimeText__c}</b></p>
+                            </lightning-layout-item>
+                        </lightning-layout-item>
+
+                        <lightning-layout-item size="12" class="slds-p-vertical_small">
+                            <h2 class="slds-text-heading_medium slds-m-bottom_xx-small">Stops:</h2>
+                            <p>Drag and drop stops to change the order.</p>
+                            <br/>
+
+                            <table
+                                    class="slds-table slds-table_cell-buffer slds-table_bordered slds-table slds-no-row-hover slds-table_bordered slds-table_fixed-layout slds-table_resizable-cols"
+                                    role="grid"
+                                    aria-multiselectable="true"
+                            >
+                                <thead>
+                                <tr class="slds-line-height_reset">
+                                    <th class="" scope="col">
+                                        <div class="slds-truncate">#</div>
+                                    </th>
+                                    <th class="" scope="col">
+                                        <div class="slds-truncate">Customer</div>
+                                    </th>
+                                    <th class="" scope="col">
+                                        <div class="slds-truncate">Address</div>
+                                    </th>
+                                    <th class="" scope="col">
+                                        <div class="slds-truncate">Status</div>
+                                    </th>
+                                    <th class="" scope="col">
+                                        <div class="slds-truncate">Number of Items</div>
+                                    </th>
+                                    <th class="" scope="col">
+                                        <div class="slds-truncate">Extra Time</div>
+                                    </th>
+                                    <th class="" scope="col">
+                                        <div class="slds-truncate">Stop Time</div>
+                                    </th>
+                                    <th class="" scope="col">
+                                        <div class="slds-truncate slds-align_absolute-center" title="Action">Action</div>
+                                    </th>
+                                </tr>
+                                </thead>
+
+                                <tbody>
+                                <tr class="slds-hint-parent" for:each={stopList} for:item="currentStop"
+                                    key={currentStop.Id}
+                                    for:index="index" title={index} draggable="true" ondrop={Drop}
+                                    ondragstart={DragStart}
+                                    ondragover={DragOver}
+                                >
+                                    <td role="gridcell" title={index}>
+                                        <div class="slds-truncate" title={index}>{currentStop.StopOrder__c}</div>
+                                    </td>
+
+                                    <td role="gridcell" title={index}>
+                                        <div class="slds-truncate" title={index}>{currentStop.CustomerName}</div>
+                                    </td>
+
+                                    <td role="gridcell" title={index}>
+                                        <div class="slds-truncate" title={index}>{currentStop.Name}</div>
+                                    </td>
+
+                                    <td role="gridcell" title={index}>
+                                        <div class="slds-truncate" title={index}>{currentStop.ServiceStatus__c}</div>
+                                    </td>
+
+                                    <td role="gridcell" title={index}>
+                                        <div class="slds-truncate" title={index}>{currentStop.NumberOfItems__c}</div>
+                                    </td>
+
+                                    <td role="gridcell" title={index}>
+                                        <div>
+                                            <lightning-input
+                                                    name="ExtraTime__c"
+                                                    variant="label-hidden"
+                                                    value={currentStop.ExtraTime__c}
+                                                    type="number"
+                                                    label=""
+                                                    data-target-id={currentStop.Id}
+                                                    onblur={handleStopExtraTimeBlur}
+                                            ></lightning-input>
+                                        </div>
+                                    </td>
+                                    <td title={index}>
+                                        <div class="slds-truncate">{currentStop.StopTime__c}</div>
+                                    </td>
+                                    <td title={index}>
+                                        <div class="slds-align_absolute-center">
+                                            <lightning-button-icon
+                                                    icon-name="utility:delete"
+                                                    alternative-text="Delete"
+                                                    class="slds-m-left_xx-small"
+                                                    onclick={removeRow}
+                                                    title="Delete"
+                                                    value={currentStop.Id}
+                                            ></lightning-button-icon>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <template if:true={showNewStopForm}>
+                                    <tr for:each={newStops} for:item="newStop" key={newStop.Name} for:index="index" 
+                                        class="slds-hint-parent" style="background-color: #fe9339">
+                                        <td>
+                                            <div class="slds-truncate">{newStop.StopOrder__c}</div>
+                                        </td>
+                                        <td>
+                                            <div class="slds-truncate">{newStop.CustomerName}</div>
+                                        </td>
+                                        <td>
+                                            <div class="slds-truncate">{newStop.Name}</div>
+                                        </td>
+                                        <td role="gridcell" title={index}>
+                                            <div class="slds-truncate" title={index}>{newStop.ServiceStatus__c}</div>
+                                        </td>
+                                        <td>
+                                            <div class="slds-truncate">{newStop.NumberOfItems__c}</div>
+                                        </td>
+                                        <td>
+                                            <div>
+                                                <lightning-input
+                                                        name="ExtraTime__c"
+                                                        variant="label-hidden"
+                                                        value={newStop.ExtraTime__c}
+                                                        type="number"
+                                                        label="Extra Time"
+                                                        data-index={index}
+                                                        data-id="ExtraTime"
+                                                        onchange={handleExtraTime}
+                                                ></lightning-input>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="slds-truncate">{newStop.StopTime__c}</div>
+                                        </td>
+                                    </tr>
+                                </template>
+                                </tbody>
+                            </table>
+                        </lightning-layout-item>
+                    </lightning-layout>
+                </div>
+                <div class="slds-text-align_center">
+                    <lightning-button-group>
+                        <lightning-button
+                                label="Cancel"
+                                type="button"
+                                variant="brand-outline"
+                                onclick={handleCancel}
+                        ></lightning-button>
+
+                        <lightning-button
+                                label="Save"
+                                onclick={handleSave}
+                                variant="brand"
+                        ></lightning-button>
+
+                        <lightning-button
+                                label="Save and Close"
+                                type="submit"
+                                variant="brand"
+                                class="save-and-close"
+                        ></lightning-button>
+                    </lightning-button-group>
+                </div>
+            </lightning-record-edit-form>
+        </lightning-card>
+    </div>
+</template>

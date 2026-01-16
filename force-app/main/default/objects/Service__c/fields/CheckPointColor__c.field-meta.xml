@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>CheckPointColor__c</fullName>
+    <externalId>false</externalId>
+    <formula>IF(AND(RecordType.DeveloperName = &quot;Client_Request&quot;, ISPICKVAL(Pickup_type__c, &quot;Delivery&quot;)), &quot;Red&quot;,
+  IF(AND(OR(RecordType.DeveloperName = &quot;Client_Request&quot;, RecordType.DeveloperName = &quot;General_Delivery&quot;), ISPICKVAL(Status__c, &quot;Redelivery&quot;)), &quot;Green&quot;,
+    IF(AND(RecordType.DeveloperName = &quot;General_Delivery&quot;, ISPICKVAL(SubType__c, &quot;HOPE&quot;)), &quot;Purple&quot;,
+      IF(RecordType.DeveloperName = &quot;Donation_Pickup&quot;, &quot;Blue&quot;,
+        IF(RecordType.DeveloperName = &quot;General_Delivery&quot;, &quot;Orange&quot;, null)
+      )
+    )
+  )
+)</formula>
+    <label>Check point Color</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

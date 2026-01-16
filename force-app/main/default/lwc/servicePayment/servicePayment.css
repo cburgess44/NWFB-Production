@@ -1,0 +1,19 @@
+/**
+ * Created by Gustavo on 22/06/23.
+ */
+
+
+.title {
+    font-size: 16px;
+    background-color: #eee;
+    border-top: #ddd;
+}
+
+.table-box {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.message {
+    font-size: 11px;
+}
