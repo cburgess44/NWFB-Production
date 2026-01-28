@@ -14,11 +14,11 @@ const COLS = [
 ];
 
 const SERVICECOLS = [
+    {label: 'Invoice #', fieldName: 'Invoice_Number__c', type: 'text'},
     {label: 'Description', fieldName: 'Name'},
-//    {label: 'Due Date', fieldName: 'DueDate__c', type: 'date'},
-    {label: 'Original Amount', fieldName: 'TotalItemsFees__c', type: 'currency'},
-    {label: 'Open balance', fieldName: 'Other_Pay__c', type: 'currency'},
-    {label: 'Payment Amount', fieldName: 'TotalPaid__c', type: 'currency', editable: false}
+    {label: 'Original Amount', fieldName: 'TotalAmount__c', type: 'currency'},
+    {label: 'Balance Due', fieldName: 'BalanceDue__c', type: 'currency'},
+    {label: 'Payment Amount', fieldName: 'PaymentAmount', type: 'currency', editable: true}
 ];
 
 
@@ -56,6 +56,7 @@ export default class InvoicePayments extends NavigationMixin(LightningElement) {
     value = 'Check';
     userFields;
     loading = false;
+    draftValues = [];
 
     constructor() {
         super();
@@ -191,7 +192,7 @@ export default class InvoicePayments extends NavigationMixin(LightningElement) {
             this.loading = true;
 
             const filter = (
-                `AND Agency__c = '${this.recordId}' `
+                `AND Agency__c = '${this.recordId}' AND BalanceDue__c > 0 `
             );
 
             const result = await listSObjects({
@@ -201,24 +202,22 @@ export default class InvoicePayments extends NavigationMixin(LightningElement) {
                     'Name',
                     'Agency__c',
                     'Agency__r.Name',
-                    'DueDate__c',
-                    'Other_Pay__c',
-                    'TotalItemsFees__c',
-                    'TotalPaid__c',
+                    'Invoice_Number__c',
+                    'TotalAmount__c',
                     'BalanceDue__c',
                 ],
                 filters: filter
             });
 
-            if (result === null) {
+            if (result === null || result.length === 0) {
                 this.loading = false;
                 return;
             }
 
             this.invoices = result.map((row) => {
-                row.Other_Pay__c = row.BalanceDue__c;
-                row.TotalPaid__c = row.BalanceDue__c;
-                return this.mapInvoices(row);
+                // Default payment amount to balance due
+                row.PaymentAmount = row.BalanceDue__c;
+                return row;
             });
             this.loading = false;
         } catch (e) {
@@ -297,20 +296,46 @@ export default class InvoicePayments extends NavigationMixin(LightningElement) {
         this.selectedInvoices = event.detail.selectedRows;
         this.showNoInvoiceMessage = this.selectedInvoices.length <= 0;
 
-        const invoicePayments = [];
+        this.recalculatePaymentTotals();
+    }
 
-        let totalToPay=0;
+    handleCellChange(event) {
+        const draftValues = event.detail.draftValues;
+        
+        // Update the invoices array with edited payment amounts
+        draftValues.forEach(draft => {
+            const invoice = this.invoices.find(inv => inv.Id === draft.Id);
+            if (invoice && draft.PaymentAmount !== undefined) {
+                invoice.PaymentAmount = Number(draft.PaymentAmount);
+            }
+        });
+
+        // Clear draft values
+        this.template.querySelector('lightning-datatable').draftValues = [];
+
+        this.recalculatePaymentTotals();
+    }
+
+    recalculatePaymentTotals() {
+        const invoicePayments = [];
+        this.newInvoicePayment = [];
+
+        let totalToPay = 0;
 
         for (const selectedInvoice of this.selectedInvoices) {
-            totalToPay += selectedInvoice.TotalPaid__c;
+            // Find the current invoice to get the possibly-edited PaymentAmount
+            const currentInvoice = this.invoices.find(inv => inv.Id === selectedInvoice.Id);
+            const paymentAmount = currentInvoice ? currentInvoice.PaymentAmount : selectedInvoice.BalanceDue__c;
+
+            totalToPay += paymentAmount;
             invoicePayments.push({
-                Amount__c: Number(selectedInvoice.TotalPaid__c),
+                Amount__c: Number(paymentAmount),
                 Service__c: selectedInvoice.Id
             });
 
             this.newInvoicePayment.push({
                 sobjectType: 'ServicePayment__c',
-                Amount__c: Number(selectedInvoice.TotalPaid__c),
+                Amount__c: Number(paymentAmount),
                 Payment__c: '',
                 Service__c: selectedInvoice.Id
             });

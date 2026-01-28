@@ -320,18 +320,18 @@ public without sharing class ServiceDao extends GenericDao {
             Contact currentContact = (Contact) contactsById.get(service.Contact__c);
             if (currentContact == null) continue;
 
-            service.Name = currentContact.FirstName + ' ' + System.now().format('MM/dd/YYYY', 'America/Los_Angeles');
+            service.Name = currentContact.FirstName + ' ' + System.now().format('MM/dd/yyyy', 'America/Los_Angeles');
 
             if (service.RecordTypeId == generalPickupRecordTypeId && service.SubType__c == 'Corporate') {
                 Account currentAgency = (Account) agenciesById.get(service.Agency__c);
                 if (currentAgency == null) continue;
 
                 if (service.CreatedDate != null) {
-                    service.Name = currentAgency.Name + ' ' + service.CreatedDate.format('MM/dd/YYYY', 'America/Los_Angeles');
+                    service.Name = currentAgency.Name + ' ' + service.CreatedDate.format('MM/dd/yyyy', 'America/Los_Angeles');
                     continue;
                 }
 
-                service.Name = currentAgency.Name + ' ' + System.now().format('MM/dd/YYYY', 'America/Los_Angeles');
+                service.Name = currentAgency.Name + ' ' + System.now().format('MM/dd/yyyy', 'America/Los_Angeles');
                 continue;
             }
 
@@ -344,12 +344,12 @@ public without sharing class ServiceDao extends GenericDao {
                         0,
                         0
                 );
-                service.Name = currentContact.FirstName + ' ' + serviceDateTime.format('MM/dd/YYYY');
+                service.Name = currentContact.FirstName + ' ' + serviceDateTime.format('MM/dd/yyyy');
                 continue;
             }
 
             if (service.CreatedDate != null) {
-                service.Name = currentContact.FirstName + ' ' + service.CreatedDate.format('MM/dd/YYYY', 'America/Los_Angeles');
+                service.Name = currentContact.FirstName + ' ' + service.CreatedDate.format('MM/dd/yyyy', 'America/Los_Angeles');
             }
         }
     }

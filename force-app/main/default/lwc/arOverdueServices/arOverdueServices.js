@@ -9,6 +9,7 @@ import recordPayment from '@salesforce/apex/AR_OverdueServicesController.recordP
 import updateCollectionsStatus from '@salesforce/apex/AR_OverdueServicesController.updateCollectionsStatus';
 import sendCollectionEmail from '@salesforce/apex/AR_OverdueServicesController.sendCollectionEmail';
 import sendAgencySummaryEmail from '@salesforce/apex/AR_OverdueServicesController.sendAgencySummaryEmail';
+import getAgencyAPContacts from '@salesforce/apex/AR_OverdueServicesController.getAgencyAPContacts';
 
 const COLUMNS = [
     {
@@ -75,6 +76,20 @@ const COLUMNS = [
         sortable: true
     },
     {
+        label: 'Invoice #',
+        fieldName: 'invoiceNumber',
+        type: 'text',
+        sortable: true,
+        initialWidth: 110
+    },
+    {
+        label: 'Service Status',
+        fieldName: 'status',
+        type: 'text',
+        sortable: true,
+        initialWidth: 120
+    },
+    {
         type: 'action',
         typeAttributes: {
             rowActions: [
@@ -100,7 +115,9 @@ const SORT_FIELD_OPTIONS = [
     { label: 'Balance Due', value: 'balanceDue' },
     { label: 'Days Outstanding', value: 'daysOutstanding' },
     { label: 'Aging Bucket', value: 'agingBucket' },
-    { label: 'Service Date', value: 'serviceRenderedDate' }
+    { label: 'Service Date', value: 'serviceRenderedDate' },
+    { label: 'Invoice #', value: 'invoiceNumber' },
+    { label: 'Service Status', value: 'status' }
 ];
 
 const SORT_DIRECTION_OPTIONS = [
@@ -179,6 +196,8 @@ export default class ArOverdueServices extends LightningElement {
     @track agencySummaryPreview = {};
     @track isSendingAgencySummary = false;
     @track showEmailPreview = false; // Two-step confirmation
+    @track agencyAPContacts = []; // AP Contacts for selected agency
+    @track isLoadingAPContacts = false;
     
     columns = COLUMNS;
     recipientOptions = RECIPIENT_OPTIONS;
@@ -303,6 +322,61 @@ export default class ArOverdueServices extends LightningElement {
     get selectedAgencyName() {
         const agency = this.agencyOptions.find(a => a.value === this.selectedAgencyId);
         return agency ? agency.label : '';
+    }
+
+    get selectedAgencyPrimaryContactName() {
+        if (!this.selectedAgencyId || !this.services) return '';
+        const agencyService = this.services.find(svc => svc.agencyId === this.selectedAgencyId);
+        return agencyService?.agencyPrimaryContactName || 'No Primary Contact';
+    }
+
+    get selectedAgencyPrimaryContactEmail() {
+        if (!this.selectedAgencyId || !this.services) return '';
+        const agencyService = this.services.find(svc => svc.agencyId === this.selectedAgencyId);
+        return agencyService?.agencyPrimaryContactEmail || 'No Email on File';
+    }
+
+    get hasAgencyPrimaryContact() {
+        if (!this.selectedAgencyId || !this.services) return false;
+        const agencyService = this.services.find(svc => svc.agencyId === this.selectedAgencyId);
+        return agencyService?.agencyPrimaryContactEmail ? true : false;
+    }
+
+    // Get unique caseworkers with emails for the selected agency
+    get selectedAgencyCaseworkers() {
+        if (!this.selectedAgencyId || !this.services) return [];
+        const caseworkerMap = new Map();
+        this.services
+            .filter(svc => svc.agencyId === this.selectedAgencyId && svc.caseworkerId && svc.caseworkerEmail)
+            .forEach(svc => {
+                if (!caseworkerMap.has(svc.caseworkerId)) {
+                    caseworkerMap.set(svc.caseworkerId, {
+                        id: svc.caseworkerId,
+                        name: svc.caseworkerName,
+                        email: svc.caseworkerEmail
+                    });
+                }
+            });
+        return Array.from(caseworkerMap.values());
+    }
+
+    get hasAgencyCaseworkers() {
+        return this.selectedAgencyCaseworkers.length > 0;
+    }
+
+    get hasAgencyAPContacts() {
+        return this.agencyAPContacts && this.agencyAPContacts.length > 0;
+    }
+
+    get hasAnyRecipients() {
+        return this.hasAgencyPrimaryContact || this.hasAgencyCaseworkers || this.hasAgencyAPContacts;
+    }
+
+    get totalRecipientCount() {
+        let count = this.hasAgencyPrimaryContact ? 1 : 0;
+        count += this.selectedAgencyCaseworkers.length;
+        count += this.agencyAPContacts ? this.agencyAPContacts.length : 0;
+        return count;
     }
 
     get sendAgencySummaryDisabled() {
@@ -607,11 +681,29 @@ export default class ArOverdueServices extends LightningElement {
         this.showAgencySummaryModal = false;
         this.selectedAgencyId = '';
         this.showEmailPreview = false;
+        this.agencyAPContacts = [];
     }
 
     handleAgencyChange(event) {
         this.selectedAgencyId = event.detail.value;
         this.showEmailPreview = false; // Reset preview when agency changes
+        this.agencyAPContacts = [];
+        
+        // Fetch AP Contacts for this agency
+        if (this.selectedAgencyId) {
+            this.isLoadingAPContacts = true;
+            getAgencyAPContacts({ agencyId: this.selectedAgencyId })
+                .then(result => {
+                    this.agencyAPContacts = result;
+                })
+                .catch(error => {
+                    console.error('Error fetching AP contacts:', error);
+                    this.agencyAPContacts = [];
+                })
+                .finally(() => {
+                    this.isLoadingAPContacts = false;
+                });
+        }
     }
 
     // Step 1: Show email preview for proofing
@@ -648,7 +740,7 @@ export default class ArOverdueServices extends LightningElement {
     }
 
     get previewEmailDisabled() {
-        return !this.selectedAgencyId || this.selectedAgencyServices.length === 0;
+        return !this.selectedAgencyId || this.selectedAgencyServices.length === 0 || !this.hasAnyRecipients;
     }
 
     showToast(title, message, variant) {

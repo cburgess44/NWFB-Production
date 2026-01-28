@@ -1,0 +1,11 @@
+<template>
+    <template if:true={showBanner}>
+        <div class={bannerClass}>
+            <lightning-icon icon-name={iconName} size="small" class="slds-m-right_small"></lightning-icon>
+            <span class="banner-text">{bannerMessage}</span>
+            <template if:true={hasBalance}>
+                <span class="banner-amount">{formattedBalance}</span>
+            </template>
+        </div>
+    </template>
+</template>

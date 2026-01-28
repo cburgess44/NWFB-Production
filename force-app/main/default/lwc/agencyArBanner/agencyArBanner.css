@@ -1,0 +1,41 @@
+.ar-banner {
+    border-radius: 4px;
+    font-weight: bold;
+    margin-bottom: 12px;
+}
+
+.banner-critical {
+    background-color: #c23934;
+    color: white;
+}
+
+.banner-warning {
+    background-color: #fe9339;
+    color: white;
+}
+
+.banner-caution {
+    background-color: #f0b323;
+    color: #3e3e3c;
+}
+
+.banner-current {
+    background-color: #2e844a;
+    color: white;
+}
+
+.banner-inactive {
+    background-color: #706e6b;
+    color: white;
+}
+
+.banner-text {
+    font-size: 14px;
+    letter-spacing: 0.5px;
+}
+
+.banner-amount {
+    margin-left: auto;
+    font-size: 16px;
+    font-weight: bold;
+}

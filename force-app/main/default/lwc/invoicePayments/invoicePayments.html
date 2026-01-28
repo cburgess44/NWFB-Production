@@ -2,23 +2,86 @@
     <lightning-spinner if:true={loading}></lightning-spinner>
     <template if:true={showData}>
 
-        <lightning-card title={cardTitle}>
-
-            <div class="slds-grid slds-wrap slds-m-bottom_medium">
-                <div class="slds-size_1-of-4 slds-m-left_x-small">
-                    <lightning-input
-                            name="PaymentDate__c"
-                            type="date"
-                            required=true
-                            label="Payment Date"
-                            value={parentPayment.PaymentDate__c}
-                            onchange={handlePaymentDataChange}
-                    ></lightning-input>
-                </div>
-                <div class="slds-size_1-of-3 slds-m-left_x-small">
-                </div>
+        <!-- Payment Form -->
+        <div class="payment-box slds-m-bottom_medium">
+            <div class="payment-box-header">
+                Payment Form
             </div>
 
+            <div class="payment-box-content">
+                <div class="payment-fields-row">
+                    <div class="payment-field">
+                        <lightning-input
+                                name="PaymentDate__c"
+                                type="date"
+                                required=true
+                                label="Payment Date"
+                                value={parentPayment.PaymentDate__c}
+                                onchange={handlePaymentDataChange}
+                        ></lightning-input>
+                    </div>
+
+                    <div class="payment-field">
+                        <lightning-radio-group
+                                name="PaymentMethod__c"
+                                label="Payment Method"
+                                options={methodOptions}
+                                value={parentPayment.PaymentMethod__c}
+                                onchange={handlePaymentDataChange}
+                                type="button"
+                        ></lightning-radio-group>
+                    </div>
+
+                    <template if:false={showCardForm}>
+                        <div class="payment-field">
+                            <lightning-input
+                                    name="CheckNumber__c"
+                                    label="Check Number"
+                                    value={parentPayment.CheckNumber__c}
+                                    onchange={handleInputChange}
+                            ></lightning-input>
+                        </div>
+
+                        <div class="payment-field-amount">
+                            <lightning-input
+                                    name="PaymentAmount__c"
+                                    label="Total Payment"
+                                    value={parentPayment.PaymentAmount__c}
+                                    type="number"
+                                    formatter="currency"
+                                    step="0.01"
+                                    readonly
+                            ></lightning-input>
+                        </div>
+                    </template>
+                </div>
+
+                <template if:true={showNoInvoiceMessage}>
+                    <p class="payment-message"><lightning-formatted-text value={label.NoInvoiceLabel}></lightning-formatted-text></p>
+                </template>
+
+                <template if:true={showCardForm}>
+                    <c-clover-connect-payment-form
+                            payment-type="card"
+                            locked-amount={parentPayment.PaymentAmount__c}
+                            user-fields={userFields}
+                            onaftersubmit={handleAfterSubmit}
+                    ></c-clover-connect-payment-form>
+                </template>
+
+                <div class="button-row" if:false={showCardForm}>
+                    <lightning-button
+                            disabled={disableCheckForm}
+                            variant="brand"
+                            label="Pay Now"
+                            onclick={handleSubmitPayment}
+                    ></lightning-button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Services/Invoices Table -->
+        <lightning-card title={cardTitle}>
             <div class="slds-card__body_inner">
                 <lightning-datatable
                         key-field="Id"
@@ -26,91 +89,12 @@
                         selected-rows={selectedRows}
                         columns={data}
                         onrowselection={handleRowSelection}
+                        oncellchange={handleCellChange}
+                        draft-values={draftValues}
                         suppress-bottom-bar="true"
                 ></lightning-datatable>
             </div>
 
-<!--            <template if:false={showCardInfoComponent}>-->
-<!--                <lightning-button-->
-<!--                        variant="brand"-->
-<!--                        label="Submit Payment"-->
-<!--                        onclick={handleCheckPayment}-->
-<!--                        class="slds-p-bottom_x-small slds-m-left_x-small"-->
-<!--                ></lightning-button>-->
-<!--            </template>-->
         </lightning-card>
-
-<!--        <div class="slds-grid">-->
-<!--            <div class="slds-col slds-col_bump-right">-->
-<!--                <lightning-button-->
-<!--                        if:false={showPaymentCard}-->
-<!--                        variant="brand"-->
-<!--                        label="Confirm Payment Info"-->
-<!--                        onclick={handleConfirmPayment}-->
-<!--                        class="slds-p-bottom_x-small slds-m-left_x-small"-->
-<!--                ></lightning-button>-->
-<!--            </div>-->
-<!--        </div>-->
-
-        <div class="payment-box">
-            <div class="payment-box-header">
-                Payment Form
-            </div>
-
-            <div class="payment-box-content">
-                <lightning-radio-group
-                        name="PaymentMethod__c"
-                        label="Payment Method"
-                        options={methodOptions}
-                        value={parentPayment.PaymentMethod__c}
-                        onchange={handlePaymentDataChange}
-                        type="button"
-                        class="slds-m-vertical_x-small slds-m-left_small"
-                ></lightning-radio-group>
-
-                <lightning-input
-                        name="CheckNumber__c"
-                        class="payment-amount slds-m-left_small slds-m-bottom_medium"
-                        label="Check Number"
-                        if:false={showCardForm}
-                        value={parentPayment.CheckNumber__c}
-                        onchange={handleInputChange}
-                ></lightning-input>
-
-                <lightning-input
-                        name="PaymentAmount__c"
-                        class="payment-amount slds-m-left_small slds-m-bottom_medium"
-                        label="Payment Amount"
-                        if:false={showCardForm}
-                        value={parentPayment.PaymentAmount__c}
-                        onchange={handleInputChange}
-                        min="0"
-                        type="number"
-                        formatter="currency"
-                        step="0.01"
-                ></lightning-input>
-
-                <template if:true={showNoInvoiceMessage}>
-                    <p class="slds-m-bottom_medium slds-m-left_small"><lightning-formatted-text value={label.NoInvoiceLabel} ></lightning-formatted-text></p>
-                </template>
-
-                <lightning-button
-                        disabled={disableCheckForm}
-                        if:false={showCardForm}
-                        variant="brand"
-                        label="Pay Now"
-                        onclick={handleSubmitPayment}
-                        class="slds-m-vertical_x-small slds-m-left_small"
-                ></lightning-button>
-
-                <c-clover-connect-payment-form
-                        if:true={showCardForm}
-                        payment-type="card"
-                        locked-amount={parentPayment.PaymentAmount__c}
-                        user-fields={userFields}
-                        onaftersubmit={handleAfterSubmit}
-                ></c-clover-connect-payment-form>
-            </div>
-        </div>
     </template>
 </template>

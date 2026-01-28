@@ -1,0 +1,63 @@
+/* AR Banner Base Styles - Solid color backgrounds with white text */
+.ar-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    border-radius: 0.25rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+    color: #ffffff;
+}
+
+.banner-left {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.banner-right {
+    display: flex;
+    align-items: center;
+}
+
+.banner-text {
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+}
+
+.banner-amount {
+    font-weight: 700;
+    font-size: 1rem;
+}
+
+/* 90+ Days - Solid Red */
+.banner-90-plus {
+    background-color: #c23934;
+}
+
+/* 61-90 Days - Solid Orange */
+.banner-61-90 {
+    background-color: #dd7a01;
+}
+
+/* 31-60 Days - Solid Yellow/Amber */
+.banner-31-60 {
+    background-color: #ca8d04;
+}
+
+/* Current (0-30 Days) - Solid Blue */
+.banner-current {
+    background-color: #0176d3;
+}
+
+/* Written Off - Solid Gray */
+.banner-written-off {
+    background-color: #706e6b;
+}
+
+/* Default - Solid Gray */
+.banner-default {
+    background-color: #706e6b;
+}

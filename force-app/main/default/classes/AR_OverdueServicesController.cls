@@ -45,9 +45,10 @@ public with sharing class AR_OverdueServicesController {
         for (Service__c svc : [
             SELECT Id, Name, Agency__c, Agency__r.Name, Contact__c, Contact__r.Name,
                    BalanceDue__c, DaysOutstanding__c, ARAgingBucket__c,
-                   ServiceRenderedDate__c, Status__c, Caseworker__r.Email,
+                   ServiceRenderedDate__c, Status__c, Caseworker__c, Caseworker__r.Name, Caseworker__r.Email,
                    Agency__r.Id, Subtype__c, ShoppingAppointmentComplete__c, 
-                   LastAppointmentDate__c, CreatedDate
+                   LastAppointmentDate__c, CreatedDate, Invoice_Number__c,
+                   Agency__r.Primary_Contact__r.Name, Agency__r.Primary_Contact__r.Email
             FROM Service__c
             WHERE BalanceDue__c > 0
               AND (DaysOutstanding__c > 30 OR DaysOutstanding__c = null)
@@ -62,6 +63,61 @@ public with sharing class AR_OverdueServicesController {
         }
         
         return results;
+    }
+    
+    /**
+     * Get AP Contacts for caseworkers associated with an agency's overdue services
+     * Used by the LWC to display AP Contact recipients in the Agency Summary modal
+     */
+    @AuraEnabled
+    public static List<ContactWrapper> getAgencyAPContacts(Id agencyId) {
+        // Get caseworker IDs from overdue services for this agency
+        Set<Id> caseworkerIds = new Set<Id>();
+        for (Service__c svc : [
+            SELECT Caseworker__c
+            FROM Service__c
+            WHERE Agency__c = :agencyId
+              AND BalanceDue__c > 0
+              AND (DaysOutstanding__c > 30 OR DaysOutstanding__c = null)
+              AND RecordType.DeveloperName = 'ClientRequest'
+              AND Status__c = 'Completed'
+              AND CreatedDate >= 2024-02-24T00:00:00Z
+              AND Caseworker__c != null
+        ]) {
+            caseworkerIds.add(svc.Caseworker__c);
+        }
+        
+        if (caseworkerIds.isEmpty()) {
+            return new List<ContactWrapper>();
+        }
+        
+        // Get AP Contacts linked to these caseworkers
+        List<ContactWrapper> results = new List<ContactWrapper>();
+        for (Contact apContact : [
+            SELECT Id, Name, Email
+            FROM Contact
+            WHERE Id IN (SELECT APContact__c FROM AP_Contact__c WHERE Case_Worker__c IN :caseworkerIds)
+            AND Email != null
+        ]) {
+            results.add(new ContactWrapper(apContact.Id, apContact.Name, apContact.Email));
+        }
+        
+        return results;
+    }
+    
+    /**
+     * Simple wrapper for contact info
+     */
+    public class ContactWrapper {
+        @AuraEnabled public Id id;
+        @AuraEnabled public String name;
+        @AuraEnabled public String email;
+        
+        public ContactWrapper(Id contactId, String contactName, String contactEmail) {
+            this.id = contactId;
+            this.name = contactName;
+            this.email = contactEmail;
+        }
     }
     
     /**
@@ -294,6 +350,11 @@ public with sharing class AR_OverdueServicesController {
         @AuraEnabled public String status;
         @AuraEnabled public String caseworkerEmail;
         @AuraEnabled public String dateSource; // Indicates which date field was used for aging
+        @AuraEnabled public String invoiceNumber;
+        @AuraEnabled public String agencyPrimaryContactName;
+        @AuraEnabled public String agencyPrimaryContactEmail;
+        @AuraEnabled public String caseworkerName;
+        @AuraEnabled public Id caseworkerId;
         
         public ServiceWrapper(Service__c svc) {
             this.id = svc.Id;
@@ -305,6 +366,12 @@ public with sharing class AR_OverdueServicesController {
             this.contactName = svc.Contact__r?.Name;
             this.balanceDue = svc.BalanceDue__c;
             this.status = svc.Status__c;
+            this.caseworkerEmail = svc.Caseworker__r?.Email;
+            this.invoiceNumber = svc.Invoice_Number__c;
+            this.agencyPrimaryContactName = svc.Agency__r?.Primary_Contact__r?.Name;
+            this.agencyPrimaryContactEmail = svc.Agency__r?.Primary_Contact__r?.Email;
+            this.caseworkerName = svc.Caseworker__r?.Name;
+            this.caseworkerId = svc.Caseworker__c;
             this.caseworkerEmail = svc.Caseworker__r?.Email;
             
             // =========================================================================
@@ -377,6 +444,7 @@ public with sharing class AR_OverdueServicesController {
     
     /**
      * Send a summary email to an agency with all their outstanding services
+     * Sends to: Primary Contact (if available) + all Caseworkers with overdue services
      * @param agencyId The Account ID of the agency
      */
     @AuraEnabled
@@ -390,16 +458,12 @@ public with sharing class AR_OverdueServicesController {
             LIMIT 1
         ];
         
-        if (agency.Primary_Contact__c == null || String.isBlank(agency.Primary_Contact__r.Email)) {
-            throw new AuraHandledException('No primary contact or email found for ' + agency.Name);
-        }
-        
-        // Get all overdue services for this agency
+        // Get all overdue services for this agency (including caseworker info)
         List<Service__c> services = [
             SELECT Id, Name, Contact__r.Name, BalanceDue__c, DaysOutstanding__c,
                    ServiceRenderedDate__c, Subtype__c, ShoppingAppointmentComplete__c,
                    LastAppointmentDate__c, CreatedDate, CollectionContactCount__c,
-                   CollectionsStatus__c
+                   CollectionsStatus__c, Caseworker__c, Caseworker__r.Name, Caseworker__r.Email
             FROM Service__c
             WHERE Agency__c = :agencyId
               AND BalanceDue__c > 0
@@ -414,6 +478,66 @@ public with sharing class AR_OverdueServicesController {
             throw new AuraHandledException('No overdue services found for ' + agency.Name);
         }
         
+        // Build recipient list: Primary Contact + unique Caseworkers + AP Contacts
+        List<String> toAddresses = new List<String>();
+        Set<String> addedEmails = new Set<String>(); // Prevent duplicates
+        List<String> recipientNames = new List<String>();
+        Id targetContactId = null;
+        Set<Id> caseworkerIds = new Set<Id>();
+        
+        // Add Primary Contact if available
+        if (agency.Primary_Contact__c != null && String.isNotBlank(agency.Primary_Contact__r.Email)) {
+            toAddresses.add(agency.Primary_Contact__r.Email);
+            addedEmails.add(agency.Primary_Contact__r.Email.toLowerCase());
+            recipientNames.add(agency.Primary_Contact__r.FirstName + ' ' + agency.Primary_Contact__r.LastName + ' (Primary Contact)');
+            targetContactId = agency.Primary_Contact__c;
+        }
+        
+        // Add Caseworkers with valid emails (avoid duplicates) and collect caseworker IDs
+        for (Service__c svc : services) {
+            if (svc.Caseworker__c != null) {
+                caseworkerIds.add(svc.Caseworker__c);
+                if (String.isNotBlank(svc.Caseworker__r.Email)) {
+                    String email = svc.Caseworker__r.Email.toLowerCase();
+                    if (!addedEmails.contains(email)) {
+                        toAddresses.add(svc.Caseworker__r.Email);
+                        addedEmails.add(email);
+                        recipientNames.add(svc.Caseworker__r.Name + ' (Caseworker)');
+                        // Use first caseworker as target if no primary contact
+                        if (targetContactId == null) {
+                            targetContactId = svc.Caseworker__c;
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Add AP Contacts linked to the caseworkers
+        if (!caseworkerIds.isEmpty()) {
+            List<Contact> apContacts = [
+                SELECT Id, Name, Email
+                FROM Contact
+                WHERE Id IN (SELECT APContact__c FROM AP_Contact__c WHERE Case_Worker__c IN :caseworkerIds)
+                AND Email != null
+            ];
+            for (Contact apContact : apContacts) {
+                String email = apContact.Email.toLowerCase();
+                if (!addedEmails.contains(email)) {
+                    toAddresses.add(apContact.Email);
+                    addedEmails.add(email);
+                    recipientNames.add(apContact.Name + ' (AP Contact)');
+                    if (targetContactId == null) {
+                        targetContactId = apContact.Id;
+                    }
+                }
+            }
+        }
+        
+        // Must have at least one recipient
+        if (toAddresses.isEmpty()) {
+            throw new AuraHandledException('No email recipients found. Please ensure the agency has a Primary Contact, caseworkers, or AP contacts with email addresses.');
+        }
+        
         // Calculate total
         Decimal totalBalance = 0;
         for (Service__c svc : services) {
@@ -425,12 +549,12 @@ public with sharing class AR_OverdueServicesController {
         
         // Send email
         Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
-        mail.setToAddresses(new List<String>{ agency.Primary_Contact__r.Email });
+        mail.setToAddresses(toAddresses);
         mail.setSubject('Outstanding Balance Summary - $' + totalBalance.setScale(2) + ' - Northwest Furniture Bank');
         mail.setHtmlBody(emailBody);
         mail.setSaveAsActivity(true);
         mail.setWhatId(agencyId); // Link to the Agency account
-        mail.setTargetObjectId(agency.Primary_Contact__c); // Link to the contact
+        mail.setTargetObjectId(targetContactId); // Link to a contact for activity tracking
         mail.setTreatTargetObjectAsRecipient(false);
         
         Messaging.sendEmail(new List<Messaging.SingleEmailMessage>{ mail });
@@ -454,7 +578,7 @@ public with sharing class AR_OverdueServicesController {
             Subject = 'AR Summary Email Sent',
             Status = 'Completed',
             Priority = 'Normal',
-            Description = 'Sent AR summary email for ' + services.size() + ' services totaling $' + totalBalance.setScale(2),
+            Description = 'Sent AR summary email to ' + String.join(recipientNames, ', ') + ' for ' + services.size() + ' services totaling $' + totalBalance.setScale(2),
             ActivityDate = Date.today()
         );
         insert t;

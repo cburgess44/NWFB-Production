@@ -1,0 +1,23 @@
+<template>
+    <template if:true={showBanner}>
+        <div class={bannerClass}>
+            <div class="banner-left">
+                <lightning-icon 
+                    icon-name={iconName} 
+                    alternative-text={statusText}
+                    size="x-small"
+                    class="banner-icon">
+                </lightning-icon>
+                <span class="banner-text">{statusText}</span>
+            </div>
+            <div class="banner-right">
+                <template if:true={showAmount}>
+                    <span class="banner-amount">{formattedBalance}</span>
+                </template>
+                <template if:true={isWrittenOff}>
+                    <span class="banner-amount">{formattedWriteOffAmount}</span>
+                </template>
+            </div>
+        </div>
+    </template>
+</template>
