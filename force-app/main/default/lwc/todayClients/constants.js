@@ -64,6 +64,12 @@ export const APPOINTMENTS_COLUMNS = [
         hideDefaultActions: true
     },
     {
+        label: 'Zip Code',
+        fieldName: 'zip',
+        type: 'text',
+        hideDefaultActions: true
+    },
+    {
         label: 'Client Service Review',
         initialWidth: 160,
         type: 'button',
