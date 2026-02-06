@@ -27,6 +27,7 @@ public without sharing class ContactDao extends GenericDao {
     }
 
     public override void afterInsert() {
+        applyPreferredContactDefaultsAfterInsert();
         rollup();
     }
 
@@ -47,15 +48,46 @@ public without sharing class ContactDao extends GenericDao {
 
     private void setPreferredContactDefaults() {
         for (Contact contact : (List<Contact>) this.records) {
-            // Set Preferred Phone to Mobile if not already set
-            if (contact.npe01__PreferredPhone__c == null) {
+            applyDefaultsToContact(contact);
+        }
+    }
+
+    private void applyPreferredContactDefaultsAfterInsert() {
+        List<Contact> toUpdate = new List<Contact>();
+        for (Contact contact : (List<Contact>) this.records) {
+            Boolean changed = false;
+            if (!isPreferredPhoneMobile(contact.npe01__PreferredPhone__c)) {
                 contact.npe01__PreferredPhone__c = 'Mobile';
+                changed = true;
             }
-            // Set Preferred Email to Personal if not already set
-            if (contact.npe01__Preferred_Email__c == null) {
+            if (!isPreferredEmailPersonal(contact.npe01__Preferred_Email__c)) {
                 contact.npe01__Preferred_Email__c = 'Personal';
+                changed = true;
+            }
+            if (changed) {
+                toUpdate.add(contact);
             }
         }
+        if (!toUpdate.isEmpty()) {
+            update toUpdate;
+        }
+    }
+
+    private void applyDefaultsToContact(Contact contact) {
+        if (!isPreferredPhoneMobile(contact.npe01__PreferredPhone__c)) {
+            contact.npe01__PreferredPhone__c = 'Mobile';
+        }
+        if (!isPreferredEmailPersonal(contact.npe01__Preferred_Email__c)) {
+            contact.npe01__Preferred_Email__c = 'Personal';
+        }
+    }
+
+    private Boolean isPreferredPhoneMobile(String value) {
+        return value != null && 'Mobile'.equalsIgnoreCase(value.trim());
+    }
+
+    private Boolean isPreferredEmailPersonal(String value) {
+        return value != null && 'Personal'.equalsIgnoreCase(value.trim());
     }
 
     private void rollup() {
