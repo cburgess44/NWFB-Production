@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://soap.sforce.com/2006/04/metadata">
+    <columns>
+        <field>NAME</field>
+    </columns>
+    <columns>
+        <field>Contact_Report__c.Contact__c</field>
+    </columns>
+    <columns>
+        <field>Contact_Report__c.Type__c</field>
+    </columns>
+    <columns>
+        <field>Contact_Report__c.Date__c</field>
+    </columns>
+    <columns>
+        <field>Contact_Report__c.Details__c</field>
+    </columns>
+    <columns>
+        <field>Contact_Report__c.Next_Step__c</field>
+    </columns>
+    <columns>
+        <field>Contact_Report__c.Follow_Up_Date__c</field>
+    </columns>
+    <description>Contact Reports logged by the current user this month</description>
+    <filter>
+        <criteriaItems>
+            <column>Contact_Report__c.Team_Member__c</column>
+            <columnToColumn>false</columnToColumn>
+            <isUnlocked>true</isUnlocked>
+            <operator>equals</operator>
+            <value>$CurrentUser.Id</value>
+        </criteriaItems>
+    </filter>
+    <format>Tabular</format>
+    <name>My Contact Reports This Month</name>
+    <params>
+        <name>co</name>
+        <value>1</value>
+    </params>
+    <reportType>Contact_Reports</reportType>
+    <scope>organization</scope>
+    <showDetails>true</showDetails>
+    <showGrandTotal>true</showGrandTotal>
+    <showSubTotals>true</showSubTotals>
+    <sortColumn>Contact_Report__c.Date__c</sortColumn>
+    <sortOrder>Desc</sortOrder>
+    <timeFrameFilter>
+        <dateColumn>Contact_Report__c.Date__c</dateColumn>
+        <interval>INTERVAL_THISMONTH</interval>
+    </timeFrameFilter>
+</Report>

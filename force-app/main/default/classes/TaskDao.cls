@@ -80,14 +80,17 @@ public without sharing class TaskDao extends GenericDao {
             contactMobilePhoneMap.put(contact.MobilePhone, contact.Id);
         }
 
-        Map<Id, SObject> serviceByContact = Utils.listToMap(
-                'Contact__c',
-                ServiceSelector.getInstance().getServicesByContactId(contactById.keySet())
-        );
+        List<Service__c> servicesByContact = ServiceSelector.getInstance().getServicesByContactId(contactById.keySet());
+        Map<Id, Service__c> serviceByContact = new Map<Id, Service__c>();
+        for (Service__c service : servicesByContact) {
+            if (!serviceByContact.containsKey(service.Contact__c)) {
+                serviceByContact.put(service.Contact__c, service);
+            }
+        }
 
         for (Task task : incomingTasks) {
             task.WhoId = contactMobilePhoneMap.get(task.MobilePhone__c);
-            Service__c service = (Service__c) serviceByContact.get(task.WhoId);
+            Service__c service = serviceByContact.get(task.WhoId);
 
             if (service == null) continue;
 
@@ -130,9 +133,10 @@ public without sharing class TaskDao extends GenericDao {
         List<Service__c> services = ServiceSelector.getInstance().getServicesByContactId(contactById.keySet());
         List<Task> parentTasks = TaskSelector.getInstance().byWhoIdAndType(contactById.keySet());
         Map<Id, Service__c> serviceByContact = new Map<Id, Service__c>();
-
-        for (Service__c service : services){
-            serviceByContact.put(service.Contact__c, service);
+        for (Service__c service : services) {
+            if (!serviceByContact.containsKey(service.Contact__c)) {
+                serviceByContact.put(service.Contact__c, service);
+            }
         }
 
         List<Task> tasksReadyForUpdate = new List<Task>();

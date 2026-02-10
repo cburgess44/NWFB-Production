@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Address_Normalized__c</fullName>
+    <description>Normalized address key for duplicate detection. Combines uppercase address, city, and zip. Apartment/unit stripping is handled in the detection Flow.</description>
+    <externalId>false</externalId>
+    <formula>UPPER(TRIM(Address__c)) &amp; "|" &amp; UPPER(TRIM(City__c)) &amp; "|" &amp; LEFT(TRIM(Zip__c), 5)</formula>
+    <inlineHelpText>Used for duplicate address detection. Full address key - fuzzy matching logic is in the detection Flow.</inlineHelpText>
+    <label>Address Normalized</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Duplicate_Match_Service__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <description>Reference to the prior Service record that triggered the duplicate flag. Allows reviewers to easily compare the two requests.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>The prior Service at this address that triggered the duplicate review flag.</inlineHelpText>
+    <label>Duplicate Match Service</label>
+    <referenceTo>Service__c</referenceTo>
+    <relationshipLabel>Duplicate Flags</relationshipLabel>
+    <relationshipName>Duplicate_Flags</relationshipName>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

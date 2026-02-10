@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Last_Contact_Report_Type__c</fullName>
+    <description>The type of the most recent Contact Report logged for this donor (Meeting, Call, Email, etc.). Updated automatically when a Contact Report is created.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Type of the last logged donor interaction</inlineHelpText>
+    <label>Last Contact Report Type</label>
+    <length>255</length>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackHistory>false</trackHistory>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Last_Contact_Report_Date__c</fullName>
+    <description>The date of the most recent Contact Report logged for this donor. Updated automatically when a Contact Report is created.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Date of the last logged donor interaction</inlineHelpText>
+    <label>Last Contact Report Date</label>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackHistory>false</trackHistory>
+    <type>Date</type>
+</CustomField>

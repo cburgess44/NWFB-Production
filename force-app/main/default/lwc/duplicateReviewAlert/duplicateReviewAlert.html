@@ -1,0 +1,95 @@
+<template>
+    <!-- RED ALERT: When pending review -->
+    <template lwc:if={showAlert}>
+        <div class="alert-container">
+            <div class="alert-header">
+                <lightning-icon icon-name="utility:warning" variant="inverse" size="small"></lightning-icon>
+                <span class="alert-title">Potential Duplicate - Review Required</span>
+                <template lwc:if={hasMultipleMatches}>
+                    <span class="match-count">({matchCount} prior requests at this address)</span>
+                </template>
+            </div>
+            <div class="alert-body">
+                <p class="alert-message">
+                    This request has been flagged because other clients at the same address received services previously.
+                </p>
+                
+                <div class="matching-services-list">
+                    <p><strong>Matching Prior Requests:</strong></p>
+                    <template for:each={matchingServices} for:item="service">
+                        <div key={service.Id} class="matching-service-item">
+                            <div class="service-row">
+                                <div class="service-info">
+                                    <span class="service-name">{service.Name}</span>
+                                    <span class="service-client" lwc:if={service.Contact__r}> - {service.Contact__r.Name}</span>
+                                </div>
+                                <div class="service-meta">
+                                    <span class="service-address">{service.Address__c}</span>
+                                    <span class="service-date">{service.formattedDate}</span>
+                                    <span class="service-status">({service.Status__c})</span>
+                                </div>
+                            </div>
+                            <lightning-button 
+                                label="View" 
+                                variant="base"
+                                data-id={service.Id}
+                                onclick={handleViewService}
+                                class="view-button">
+                            </lightning-button>
+                        </div>
+                    </template>
+                </div>
+
+                <div class="review-section">
+                    <lightning-record-edit-form record-id={recordId} object-api-name="Service__c" onsuccess={handleSuccess}>
+                        <div class="slds-grid slds-wrap">
+                            <div class="slds-col slds-size_1-of-1">
+                                <lightning-input-field field-name="Duplicate_Review_Notes__c"></lightning-input-field>
+                            </div>
+                        </div>
+                        <div class="button-row">
+                            <lightning-button 
+                                type="submit" 
+                                label="Clear Flag & Approve" 
+                                variant="brand"
+                                onclick={handleClearFlag}>
+                            </lightning-button>
+                        </div>
+                    </lightning-record-edit-form>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <!-- GREEN INFO: When previously reviewed and cleared -->
+    <template lwc:if={showCleared}>
+        <div class="cleared-container">
+            <div class="cleared-content">
+                <lightning-icon icon-name="utility:check" variant="inverse" size="x-small"></lightning-icon>
+                <span class="cleared-text">
+                    Duplicate review completed by {clearedByName} on {clearedDateFormatted}
+                </span>
+                <lightning-button 
+                    label="View Details" 
+                    variant="base"
+                    onclick={toggleDetails}
+                    class="details-button">
+                </lightning-button>
+            </div>
+            <template lwc:if={showDetails}>
+                <div class="cleared-details">
+                    <p><strong>Notes:</strong> {reviewNotes}</p>
+                    <p><strong>Matching Requests ({matchCount}):</strong></p>
+                    <template for:each={matchingServices} for:item="service">
+                        <div key={service.Id} class="cleared-match-item">
+                            <a href={service.url} onclick={handleViewService} data-id={service.Id}>
+                                {service.Name}
+                            </a>
+                            <span> - {service.Address__c} ({service.formattedDate})</span>
+                        </div>
+                    </template>
+                </div>
+            </template>
+        </div>
+    </template>
+</template>

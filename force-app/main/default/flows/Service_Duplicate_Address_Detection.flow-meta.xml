@@ -1,0 +1,330 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionCalls>
+        <name>Send_Notification</name>
+        <label>Send Notification to Client Service Manager</label>
+        <locationX>264</locationX>
+        <locationY>755</locationY>
+        <actionName>emailSimple</actionName>
+        <actionType>emailSimple</actionType>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>emailSubject</name>
+            <value>
+                <stringValue>Potential Duplicate Service Request - Review Required</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>emailBody</name>
+            <value>
+                <elementReference>NotificationBody</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>emailAddresses</name>
+            <value>
+                <stringValue>stedder@nwfurniturebank.org</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>senderType</name>
+            <value>
+                <stringValue>DefaultWorkflowUser</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>relatedRecordId</name>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>logEmailOnSend</name>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </inputParameters>
+        <nameSegment>emailSimple</nameSegment>
+    </actionCalls>
+    <apiVersion>60.0</apiVersion>
+    <assignments>
+        <name>Store_Matching_Service</name>
+        <label>Store Matching Service</label>
+        <locationX>264</locationX>
+        <locationY>431</locationY>
+        <assignmentItems>
+            <assignToReference>MatchedServiceId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Loop_Through_Services.Id</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>MatchedServiceName</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Loop_Through_Services.Name</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>MatchedServiceAddress</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Loop_Through_Services.Address__c</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Loop_Through_Services</targetReference>
+        </connector>
+    </assignments>
+    <decisions>
+        <name>Check_Street_Number_Match</name>
+        <label>Check Street Number Match</label>
+        <locationX>396</locationX>
+        <locationY>323</locationY>
+        <defaultConnector>
+            <targetReference>Loop_Through_Services</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>No Match</defaultConnectorLabel>
+        <rules>
+            <name>Street_Numbers_Match</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>CurrentStreetNumber</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <elementReference>NewRecordStreetNumber</elementReference>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>MatchedServiceId</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Store_Matching_Service</targetReference>
+            </connector>
+            <label>Street Numbers Match</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Did_We_Find_Match</name>
+        <label>Did We Find Match</label>
+        <locationX>176</locationX>
+        <locationY>539</locationY>
+        <defaultConnectorLabel>No Match Found</defaultConnectorLabel>
+        <rules>
+            <name>Match_Was_Found</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>MatchedServiceId</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Flag_As_Duplicate_Final</targetReference>
+            </connector>
+            <label>Match Was Found</label>
+        </rules>
+    </decisions>
+    <description>Detects potential duplicate Service requests at the same address within 12 months. Flags the Service for review and notifies the Client Service Manager.</description>
+    <environments>Default</environments>
+    <formulas>
+        <name>TwelveMonthsAgo</name>
+        <dataType>Date</dataType>
+        <expression>ADDMONTHS(TODAY(), -12)</expression>
+    </formulas>
+    <formulas>
+        <name>CurrentStreetNumber</name>
+        <dataType>String</dataType>
+        <expression>IF(FIND(" ", {!Loop_Through_Services.Address__c}) > 0,
+   TRIM(LEFT({!Loop_Through_Services.Address__c}, FIND(" ", {!Loop_Through_Services.Address__c}) - 1)),
+   {!Loop_Through_Services.Address__c}
+)</expression>
+    </formulas>
+    <formulas>
+        <name>NewRecordStreetNumber</name>
+        <dataType>String</dataType>
+        <expression>IF(FIND(" ", {!$Record.Address__c}) > 0,
+   TRIM(LEFT({!$Record.Address__c}, FIND(" ", {!$Record.Address__c}) - 1)),
+   {!$Record.Address__c}
+)</expression>
+    </formulas>
+    <formulas>
+        <name>NotificationBody</name>
+        <dataType>String</dataType>
+        <expression>"A new Client Request has been flagged as a potential duplicate address." &amp; BR() &amp; BR() &amp;
+"NEW REQUEST:" &amp; BR() &amp;
+"Service: " &amp; {!$Record.Name} &amp; BR() &amp;
+"Address: " &amp; {!$Record.Address__c} &amp; ", " &amp; {!$Record.City__c} &amp; ", " &amp; {!$Record.State__c} &amp; " " &amp; {!$Record.Zip__c} &amp; BR() &amp; BR() &amp;
+"MATCHING PRIOR REQUEST:" &amp; BR() &amp;
+"Service: " &amp; {!MatchedServiceName} &amp; BR() &amp;
+"Address: " &amp; {!MatchedServiceAddress} &amp; BR() &amp; BR() &amp;
+"Please review and clear the duplicate flag if this is a legitimate separate request."</expression>
+    </formulas>
+    <formulas>
+        <name>TaskDescription</name>
+        <dataType>String</dataType>
+        <expression>"This service request has been flagged as a potential duplicate." &amp; BR() &amp; BR() &amp;
+"Service: " &amp; {!$Record.Name} &amp; BR() &amp;
+"Address: " &amp; {!$Record.Address__c} &amp; ", " &amp; {!$Record.City__c} &amp; ", " &amp; {!$Record.State__c} &amp; " " &amp; {!$Record.Zip__c} &amp; BR() &amp; BR() &amp;
+"Please review and clear the duplicate flag if this is a legitimate separate request."</expression>
+    </formulas>
+    <interviewLabel>Service Duplicate Address Detection {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Service Duplicate Address Detection</label>
+    <loops>
+        <name>Loop_Through_Services</name>
+        <label>Loop Through Services</label>
+        <locationX>176</locationX>
+        <locationY>215</locationY>
+        <collectionReference>Get_Services_In_Area</collectionReference>
+        <iterationOrder>Asc</iterationOrder>
+        <nextValueConnector>
+            <targetReference>Check_Street_Number_Match</targetReference>
+        </nextValueConnector>
+        <noMoreValuesConnector>
+            <targetReference>Did_We_Find_Match</targetReference>
+        </noMoreValuesConnector>
+    </loops>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordLookups>
+        <name>Get_Services_In_Area</name>
+        <label>Get Services In Area</label>
+        <locationX>176</locationX>
+        <locationY>107</locationY>
+        <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Loop_Through_Services</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>NotEqualTo</operator>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>RecordTypeName__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>ClientRequest</stringValue>
+            </value>
+        </filters>
+        <filters>
+            <field>City__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.City__c</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>Zip__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Zip__c</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>Status__c</field>
+            <operator>NotEqualTo</operator>
+            <value>
+                <stringValue>Cancelled</stringValue>
+            </value>
+        </filters>
+        <filters>
+            <field>CreatedDate</field>
+            <operator>GreaterThanOrEqualTo</operator>
+            <value>
+                <elementReference>TwelveMonthsAgo</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>false</getFirstRecordOnly>
+        <object>Service__c</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordUpdates>
+        <name>Flag_As_Duplicate_Final</name>
+        <label>Flag As Duplicate Final</label>
+        <locationX>176</locationX>
+        <locationY>647</locationY>
+        <connector>
+            <targetReference>Send_Notification</targetReference>
+        </connector>
+        <inputAssignments>
+            <field>Pending_Duplicate_Review__c</field>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Duplicate_Match_Service__c</field>
+            <value>
+                <elementReference>MatchedServiceId</elementReference>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <start>
+        <locationX>50</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Get_Services_In_Area</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>RecordTypeName__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>ClientRequest</stringValue>
+            </value>
+        </filters>
+        <object>Service__c</object>
+        <recordTriggerType>Create</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Draft</status>
+    <variables>
+        <name>MatchedServiceAddress</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>MatchedServiceId</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>MatchedServiceName</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+</Flow>

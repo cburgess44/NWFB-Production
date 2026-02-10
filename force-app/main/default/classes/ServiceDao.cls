@@ -23,6 +23,7 @@ public without sharing class ServiceDao extends GenericDao {
     }
 
     public override void afterInsert() {
+        flagDuplicateAddresses();
         sendEmailBasedOnStatus();
         countAmountOfRequestInTheLastYear();
         callSendInvoiceForCaseworkerAPContact();
@@ -74,6 +75,96 @@ public without sharing class ServiceDao extends GenericDao {
             }
         } catch (Exception e) {
             System.debug(e.getMessage());
+        }
+    }
+
+    /**
+     * Duplicate address detection (replaces Service Duplicate Address Detection flow).
+     * One SOQL per batch instead of per record; flags new Client Requests that match an existing same-address service in last 12 months.
+     */
+    @TestVisible
+    private void flagDuplicateAddresses() {
+        List<Service__c> newClientRequests = new List<Service__c>();
+        for (Service__c s : (List<Service__c>) this.records) {
+            if (s.RecordTypeId == null) continue;
+        if (Service__c.SObjectType.getDescribe().getRecordTypeInfosById().get(s.RecordTypeId).getDeveloperName() != 'ClientRequest') continue;
+            newClientRequests.add(s);
+        }
+        if (newClientRequests.isEmpty()) return;
+
+        Set<Id> newIds = new Set<Id>();
+        for (Service__c s : newClientRequests) newIds.add(s.Id);
+
+        List<Service__c> existing = ServiceSelector.getInstance().getPotentialDuplicateServicesByCityZip(newIds, newClientRequests);
+        Map<String, List<Service__c>> existingByCityZip = new Map<String, List<Service__c>>();
+        for (Service__c s : existing) {
+            String key = (s.City__c != null ? s.City__c : '') + '|' + (s.Zip__c != null ? s.Zip__c : '');
+            if (!existingByCityZip.containsKey(key)) existingByCityZip.put(key, new List<Service__c>());
+            existingByCityZip.get(key).add(s);
+        }
+
+        List<Service__c> toUpdate = new List<Service__c>();
+        List<Service__c> toNotify = new List<Service__c>();
+        Map<Id, Service__c> matchedServiceById = new Map<Id, Service__c>();
+
+        for (Service__c newRec : newClientRequests) {
+            String key = (newRec.City__c != null ? newRec.City__c : '') + '|' + (newRec.Zip__c != null ? newRec.Zip__c : '');
+            List<Service__c> candidates = existingByCityZip.get(key);
+            if (candidates == null || candidates.isEmpty()) continue;
+
+            String newStreetNum = getStreetNumber(newRec.Address__c);
+            if (String.isBlank(newStreetNum)) continue;
+
+            for (Service__c cand : candidates) {
+                if (getStreetNumber(cand.Address__c).equalsIgnoreCase(newStreetNum)) {
+                    toUpdate.add(new Service__c(
+                            Id = newRec.Id,
+                            Pending_Duplicate_Review__c = true,
+                            Duplicate_Match_Service__c = cand.Id
+                    ));
+                    matchedServiceById.put(newRec.Id, cand);
+                    toNotify.add(newRec);
+                    break;
+                }
+            }
+        }
+
+        if (!toUpdate.isEmpty()) {
+            update toUpdate;
+            sendDuplicateNotificationEmails(toNotify, matchedServiceById);
+        }
+    }
+
+    private static String getStreetNumber(String address) {
+        if (String.isBlank(address)) return '';
+        String a = address.trim();
+        Integer i = a.indexOf(' ');
+        return i > 0 ? a.substring(0, i).trim() : a;
+    }
+
+    private static void sendDuplicateNotificationEmails(List<Service__c> flagged, Map<Id, Service__c> matchedServiceById) {
+        List<Messaging.SingleEmailMessage> messages = new List<Messaging.SingleEmailMessage>();
+        for (Service__c newRec : flagged) {
+            Service__c match = matchedServiceById.get(newRec.Id);
+            if (match == null) continue;
+            String body = 'A new Client Request has been flagged as a potential duplicate address.\n\n'
+                    + 'NEW REQUEST:\n'
+                    + 'Service: ' + newRec.Name + '\n'
+                    + 'Address: ' + newRec.Address__c + ', ' + newRec.City__c + ', ' + newRec.State__c + ' ' + newRec.Zip__c + '\n\n'
+                    + 'MATCHING PRIOR REQUEST:\n'
+                    + 'Service: ' + match.Name + '\n'
+                    + 'Address: ' + match.Address__c + '\n\n'
+                    + 'Please review and clear the duplicate flag if this is a legitimate separate request.';
+            Messaging.SingleEmailMessage msg = new Messaging.SingleEmailMessage();
+            msg.setToAddresses(new List<String>{ 'stedder@nwfurniturebank.org' });
+            msg.setSubject('Potential Duplicate Service Request - Review Required');
+            msg.setPlainTextBody(body);
+            msg.setSaveAsActivity(false);
+            msg.setWhatId(newRec.Id);
+            messages.add(msg);
+        }
+        if (!messages.isEmpty() && !Test.isRunningTest()) {
+            Messaging.sendEmail(messages);
         }
     }
 

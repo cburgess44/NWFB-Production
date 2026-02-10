@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>CannotScheduleWithPendingDuplicateReview</fullName>
+    <active>true</active>
+    <description>Prevents a Service from being scheduled or progressing beyond Processing status while it is flagged for duplicate address review.</description>
+    <errorConditionFormula>Pending_Duplicate_Review__c = TRUE 
+&amp;&amp; ISCHANGED(Status__c) 
+&amp;&amp; NOT(ISPICKVAL(Status__c, &apos;Processing&apos;)) 
+&amp;&amp; NOT(ISPICKVAL(Status__c, &apos;Cancelled&apos;))</errorConditionFormula>
+    <errorDisplayField>Status__c</errorDisplayField>
+    <errorMessage>This Service is flagged as a potential duplicate address and requires review by the Client Service Manager before it can be scheduled. Please contact Sara Tedder to review and clear the duplicate flag.</errorMessage>
+</ValidationRule>
