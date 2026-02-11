@@ -117,16 +117,19 @@ export default class DuplicateReviewAlert extends NavigationMixin(LightningEleme
         }
     }
 
+    handleNotesChange(event) {
+        this._notesValue = event.detail.value;
+    }
+
     handleClearFlag(event) {
         event.preventDefault();
         
-        const notesField = this.template.querySelector('lightning-input-field[field-name="Duplicate_Review_Notes__c"]');
-        const notesValue = notesField ? notesField.value : '';
+        const notesValue = this._notesValue || '';
 
         const fields = {
             Id: this.recordId,
-            Pending_Duplicate_Review__c: false,
-            Duplicate_Review_Notes__c: notesValue
+            [PENDING_DUPLICATE_REVIEW_FIELD.fieldApiName]: false,
+            [DUPLICATE_REVIEW_NOTES_FIELD.fieldApiName]: notesValue
         };
 
         updateRecord({ fields })

@@ -4,7 +4,7 @@ public with sharing class DuplicateReviewController {
     public static List<Service__c> getMatchingServices(Id serviceId) {
         // Get the current service
         Service__c currentService = [
-            SELECT Id, Address__c, City__c, Zip__c 
+            SELECT Id, Address__c, City__c, Zip__c, Apt_Unit_Number__c 
             FROM Service__c 
             WHERE Id = :serviceId 
             LIMIT 1
@@ -26,10 +26,16 @@ public with sharing class DuplicateReviewController {
             return new List<Service__c>();
         }
         
+        // Normalize current apartment number for comparison
+        String currentApt = currentService.Apt_Unit_Number__c;
+        if (currentApt != null) {
+            currentApt = currentApt.trim().toLowerCase();
+        }
+        
         // Query for all matching services in same city/zip within the last 12 months
         Date twelveMonthsAgo = Date.today().addMonths(-12);
         List<Service__c> allServicesInArea = [
-            SELECT Id, Name, Address__c, City__c, State__c, Zip__c, 
+            SELECT Id, Name, Address__c, Apt_Unit_Number__c, City__c, State__c, Zip__c, 
                    Contact__r.Name, CreatedDate, Status__c
             FROM Service__c
             WHERE Id != :serviceId
@@ -42,7 +48,7 @@ public with sharing class DuplicateReviewController {
             LIMIT 100
         ];
         
-        // Filter to only those with matching street number
+        // Filter to only those with matching street number AND apartment number
         List<Service__c> matchingServices = new List<Service__c>();
         for (Service__c svc : allServicesInArea) {
             if (svc.Address__c != null) {
@@ -53,8 +59,21 @@ public with sharing class DuplicateReviewController {
                     svcStreetNumber = svc.Address__c.trim();
                 }
                 
+                // Check street number match
                 if (svcStreetNumber.equalsIgnoreCase(streetNumber)) {
-                    matchingServices.add(svc);
+                    // Check apartment number match
+                    String svcApt = svc.Apt_Unit_Number__c;
+                    if (svcApt != null) {
+                        svcApt = svcApt.trim().toLowerCase();
+                    }
+                    
+                    // Match if both are blank, or both have the same value
+                    Boolean aptMatch = (String.isBlank(currentApt) && String.isBlank(svcApt)) ||
+                                      (currentApt != null && currentApt.equals(svcApt));
+                    
+                    if (aptMatch) {
+                        matchingServices.add(svc);
+                    }
                 }
             }
         }

@@ -60,7 +60,7 @@ private class DuplicateReviewControllerTest {
             LIMIT 1
         ];
         
-        // Create first service at an address
+        // Create first service at an address (no apartment)
         Service__c service1 = new Service__c(
             RecordTypeId = clientRequestRT.Id,
             Contact__c = testContact.Id,
@@ -72,23 +72,113 @@ private class DuplicateReviewControllerTest {
         );
         insert service1;
         
-        // Create second service at same address (different apartment)
+        // Create second service at same address (no apartment)
+        // Wrap in startTest to get fresh governor limits (insert triggers cascading Flows)
         Service__c service2 = new Service__c(
             RecordTypeId = clientRequestRT.Id,
             Contact__c = testContact.Id,
-            Address__c = '456 Main Avenue Apt 2',
+            Address__c = '456 Main Avenue',
             City__c = 'Tacoma',
             State__c = 'WA',
             Zip__c = '98402',
             SubType__c = 'Delivery'
         );
-        insert service2;
         
         Test.startTest();
+        insert service2;
         List<Service__c> results = DuplicateReviewController.getMatchingServices(service2.Id);
         Test.stopTest();
         
-        System.assertEquals(1, results.size(), 'Should return 1 match with same street number');
+        System.assertEquals(1, results.size(), 'Should return 1 match with same street number and no apt');
+        System.assertEquals(service1.Id, results[0].Id, 'Should return the first service as match');
+    }
+    
+    @isTest
+    static void testGetMatchingServicesDifferentApartments() {
+        Contact testContact = [SELECT Id FROM Contact LIMIT 1];
+        
+        RecordType clientRequestRT = [
+            SELECT Id FROM RecordType 
+            WHERE SObjectType = 'Service__c' 
+            AND DeveloperName = 'ClientRequest' 
+            LIMIT 1
+        ];
+        
+        // Create first service at an address with Apt 1
+        Service__c service1 = new Service__c(
+            RecordTypeId = clientRequestRT.Id,
+            Contact__c = testContact.Id,
+            Address__c = '456 Main Street',
+            Apt_Unit_Number__c = 'Apt 1',
+            City__c = 'Tacoma',
+            State__c = 'WA',
+            Zip__c = '98402',
+            SubType__c = 'Delivery'
+        );
+        insert service1;
+        
+        // Create second service at same address with Apt 2 - should NOT match
+        Service__c service2 = new Service__c(
+            RecordTypeId = clientRequestRT.Id,
+            Contact__c = testContact.Id,
+            Address__c = '456 Main Avenue',
+            Apt_Unit_Number__c = 'Apt 2',
+            City__c = 'Tacoma',
+            State__c = 'WA',
+            Zip__c = '98402',
+            SubType__c = 'Delivery'
+        );
+        
+        Test.startTest();
+        insert service2;
+        List<Service__c> results = DuplicateReviewController.getMatchingServices(service2.Id);
+        Test.stopTest();
+        
+        System.assertEquals(0, results.size(), 'Should return no matches when apartment numbers differ');
+    }
+    
+    @isTest
+    static void testGetMatchingServicesSameApartments() {
+        Contact testContact = [SELECT Id FROM Contact LIMIT 1];
+        
+        RecordType clientRequestRT = [
+            SELECT Id FROM RecordType 
+            WHERE SObjectType = 'Service__c' 
+            AND DeveloperName = 'ClientRequest' 
+            LIMIT 1
+        ];
+        
+        // Create first service at an address with Apt 1
+        Service__c service1 = new Service__c(
+            RecordTypeId = clientRequestRT.Id,
+            Contact__c = testContact.Id,
+            Address__c = '456 Main Street',
+            Apt_Unit_Number__c = 'Apt 1',
+            City__c = 'Tacoma',
+            State__c = 'WA',
+            Zip__c = '98402',
+            SubType__c = 'Delivery'
+        );
+        insert service1;
+        
+        // Create second service at same address with same Apt 1 - SHOULD match
+        Service__c service2 = new Service__c(
+            RecordTypeId = clientRequestRT.Id,
+            Contact__c = testContact.Id,
+            Address__c = '456 Main Avenue',
+            Apt_Unit_Number__c = 'apt 1',
+            City__c = 'Tacoma',
+            State__c = 'WA',
+            Zip__c = '98402',
+            SubType__c = 'Delivery'
+        );
+        
+        Test.startTest();
+        insert service2;
+        List<Service__c> results = DuplicateReviewController.getMatchingServices(service2.Id);
+        Test.stopTest();
+        
+        System.assertEquals(1, results.size(), 'Should return 1 match with same street number and same apt');
         System.assertEquals(service1.Id, results[0].Id, 'Should return the first service as match');
     }
     

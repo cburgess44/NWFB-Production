@@ -24,7 +24,7 @@
                                     <span class="service-client" lwc:if={service.Contact__r}> - {service.Contact__r.Name}</span>
                                 </div>
                                 <div class="service-meta">
-                                    <span class="service-address">{service.Address__c}</span>
+                                    <span class="service-address">{service.Address__c}<template lwc:if={service.Apt_Unit_Number__c}> {service.Apt_Unit_Number__c}</template></span>
                                     <span class="service-date">{service.formattedDate}</span>
                                     <span class="service-status">({service.Status__c})</span>
                                 </div>
@@ -44,7 +44,7 @@
                     <lightning-record-edit-form record-id={recordId} object-api-name="Service__c" onsuccess={handleSuccess}>
                         <div class="slds-grid slds-wrap">
                             <div class="slds-col slds-size_1-of-1">
-                                <lightning-input-field field-name="Duplicate_Review_Notes__c"></lightning-input-field>
+                                <lightning-input-field field-name="Duplicate_Review_Notes__c" onchange={handleNotesChange}></lightning-input-field>
                             </div>
                         </div>
                         <div class="button-row">
@@ -85,7 +85,7 @@
                             <a href={service.url} onclick={handleViewService} data-id={service.Id}>
                                 {service.Name}
                             </a>
-                            <span> - {service.Address__c} ({service.formattedDate})</span>
+                            <span> - {service.Address__c}<template lwc:if={service.Apt_Unit_Number__c}> {service.Apt_Unit_Number__c}</template> ({service.formattedDate})</span>
                         </div>
                     </template>
                 </div>
