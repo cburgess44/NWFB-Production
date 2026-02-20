@@ -12,12 +12,6 @@
         </connector>
         <flowTransactionModel>CurrentTransaction</flowTransactionModel>
         <inputParameters>
-            <name>emailBody</name>
-            <value>
-                <elementReference>bodyEmail</elementReference>
-            </value>
-        </inputParameters>
-        <inputParameters>
             <name>recipientId</name>
             <value>
                 <elementReference>contact_for_emails_loop.Id</elementReference>
@@ -26,18 +20,34 @@
         <inputParameters>
             <name>logEmailOnSend</name>
             <value>
-                <booleanValue>true</booleanValue>
+                <booleanValue>false</booleanValue>
             </value>
         </inputParameters>
         <inputParameters>
             <name>emailTemplateId</name>
             <value>
-                <stringValue>00XPC000000Xijr2AC</stringValue>
+                <stringValue>00XPC000000Xijs2AC</stringValue>
             </value>
         </inputParameters>
         <nameSegment>emailSimple</nameSegment>
     </actionCalls>
     <apiVersion>56.0</apiVersion>
+    <assignments>
+        <name>get_noshow_selectedIds</name>
+        <label>get noshow selectedIds</label>
+        <locationX>264</locationX>
+        <locationY>1958</locationY>
+        <assignmentItems>
+            <assignToReference>noshowDataTableIds</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>noshow_selection_loop.Id</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>noshow_selection_loop</targetReference>
+        </connector>
+    </assignments>
     <assignments>
         <name>get_selectedIds</name>
         <label>get selectedIds</label>
@@ -70,7 +80,6 @@
             <targetReference>campaign_members_loop</targetReference>
         </connector>
     </assignments>
-    <description>Updated the Email template</description>
     <environments>Default</environments>
     <formulas>
         <name>Today</name>
@@ -103,6 +112,9 @@
         <nextValueConnector>
             <targetReference>Send_orientation_confirmed_email</targetReference>
         </nextValueConnector>
+        <noMoreValuesConnector>
+            <targetReference>get_remaining_registered_members</targetReference>
+        </noMoreValuesConnector>
     </loops>
     <loops>
         <name>Copy_1_of_campaign_members_loop</name>
@@ -116,6 +128,20 @@
         </nextValueConnector>
         <noMoreValuesConnector>
             <targetReference>get_campaign_members_selected</targetReference>
+        </noMoreValuesConnector>
+    </loops>
+    <loops>
+        <name>noshow_selection_loop</name>
+        <label>noshow selection loop</label>
+        <locationX>176</locationX>
+        <locationY>1850</locationY>
+        <collectionReference>noshow_datatable.selectedRows</collectionReference>
+        <iterationOrder>Asc</iterationOrder>
+        <nextValueConnector>
+            <targetReference>get_noshow_selectedIds</targetReference>
+        </nextValueConnector>
+        <noMoreValuesConnector>
+            <targetReference>Update_Not_Attended_Campaign_members</targetReference>
         </noMoreValuesConnector>
     </loops>
     <processMetadataValues>
@@ -215,6 +241,34 @@
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordLookups>
+        <name>get_remaining_registered_members</name>
+        <label>Get Remaining Registered Members</label>
+        <locationX>176</locationX>
+        <locationY>1650</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Not_Attended_Selection_Screen</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>CampaignId</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>recordId</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>Status</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Registered</stringValue>
+            </value>
+        </filters>
+        <getFirstRecordOnly>false</getFirstRecordOnly>
+        <object>CampaignMember</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
         <name>getCampaignMembers</name>
         <label>getCampaignMembers</label>
         <locationX>176</locationX>
@@ -229,6 +283,13 @@
             <operator>EqualTo</operator>
             <value>
                 <elementReference>recordId</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>Status</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Registered</stringValue>
             </value>
         </filters>
         <getFirstRecordOnly>false</getFirstRecordOnly>
@@ -254,7 +315,7 @@
         <inputAssignments>
             <field>Status</field>
             <value>
-                <stringValue>Responded</stringValue>
+                <stringValue>Attended</stringValue>
             </value>
         </inputAssignments>
         <object>CampaignMember</object>
@@ -295,9 +356,30 @@
         </inputAssignments>
         <object>Contact</object>
     </recordUpdates>
+    <recordUpdates>
+        <name>Update_Not_Attended_Campaign_members</name>
+        <label>Update Not Attended Campaign members</label>
+        <locationX>176</locationX>
+        <locationY>2050</locationY>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>In</operator>
+            <value>
+                <elementReference>noshowDataTableIds</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>Status</field>
+            <value>
+                <stringValue>Not attended</stringValue>
+            </value>
+        </inputAssignments>
+        <object>CampaignMember</object>
+    </recordUpdates>
     <screens>
         <name>Campaign_Member_Selection_List</name>
-        <label>Campaign Member Selection List</label>
+        <label>Step 1: Mark Contacts Attended</label>
         <locationX>176</locationX>
         <locationY>350</locationY>
         <allowBack>true</allowBack>
@@ -306,6 +388,11 @@
         <connector>
             <targetReference>Copy_1_of_campaign_members_loop</targetReference>
         </connector>
+        <fields>
+            <name>AttendedInstructions</name>
+            <fieldText>&lt;p&gt;&lt;strong&gt;Select the caseworkers who ATTENDED this orientation.&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;They will be marked as &quot;Attended&quot; and receive a confirmation email.&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
         <fields>
             <name>datatable</name>
             <dataTypeMappings>
@@ -347,7 +434,74 @@
             <inputParameters>
                 <name>columns</name>
                 <value>
-                    <stringValue>[{&quot;apiName&quot;:&quot;Name&quot;,&quot;guid&quot;:&quot;column-dd54&quot;,&quot;editable&quot;:false,&quot;hasCustomHeaderLabel&quot;:false,&quot;customHeaderLabel&quot;:&quot;&quot;,&quot;wrapText&quot;:true,&quot;order&quot;:0,&quot;label&quot;:&quot;Name&quot;,&quot;type&quot;:&quot;text&quot;},{&quot;apiName&quot;:&quot;Status&quot;,&quot;guid&quot;:&quot;column-b379&quot;,&quot;editable&quot;:false,&quot;hasCustomHeaderLabel&quot;:false,&quot;customHeaderLabel&quot;:&quot;&quot;,&quot;wrapText&quot;:true,&quot;order&quot;:1,&quot;label&quot;:&quot;Status&quot;,&quot;type&quot;:&quot;text&quot;},{&quot;apiName&quot;:&quot;Title&quot;,&quot;guid&quot;:&quot;column-590c&quot;,&quot;editable&quot;:false,&quot;hasCustomHeaderLabel&quot;:false,&quot;customHeaderLabel&quot;:&quot;&quot;,&quot;wrapText&quot;:true,&quot;order&quot;:2,&quot;label&quot;:&quot;Title&quot;,&quot;type&quot;:&quot;text&quot;},{&quot;apiName&quot;:&quot;&quot;,&quot;guid&quot;:&quot;column-30e0&quot;,&quot;editable&quot;:false,&quot;hasCustomHeaderLabel&quot;:false,&quot;customHeaderLabel&quot;:&quot;&quot;,&quot;wrapText&quot;:true,&quot;order&quot;:2}]</stringValue>
+                    <stringValue>[{&quot;apiName&quot;:&quot;Name&quot;,&quot;guid&quot;:&quot;column-dd54&quot;,&quot;editable&quot;:false,&quot;hasCustomHeaderLabel&quot;:false,&quot;customHeaderLabel&quot;:&quot;&quot;,&quot;wrapText&quot;:true,&quot;order&quot;:0,&quot;label&quot;:&quot;Name&quot;,&quot;type&quot;:&quot;text&quot;},{&quot;apiName&quot;:&quot;Status&quot;,&quot;guid&quot;:&quot;column-b379&quot;,&quot;editable&quot;:false,&quot;hasCustomHeaderLabel&quot;:false,&quot;customHeaderLabel&quot;:&quot;&quot;,&quot;wrapText&quot;:true,&quot;order&quot;:1,&quot;label&quot;:&quot;Status&quot;,&quot;type&quot;:&quot;text&quot;},{&quot;apiName&quot;:&quot;Title&quot;,&quot;guid&quot;:&quot;column-590c&quot;,&quot;editable&quot;:false,&quot;hasCustomHeaderLabel&quot;:false,&quot;customHeaderLabel&quot;:&quot;&quot;,&quot;wrapText&quot;:true,&quot;order&quot;:2,&quot;label&quot;:&quot;Title&quot;,&quot;type&quot;:&quot;text&quot;}]</stringValue>
+                </value>
+            </inputParameters>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+            <isRequired>true</isRequired>
+            <storeOutputAutomatically>true</storeOutputAutomatically>
+        </fields>
+        <showFooter>true</showFooter>
+        <showHeader>true</showHeader>
+    </screens>
+    <screens>
+        <name>Not_Attended_Selection_Screen</name>
+        <label>Mark as Not Attended</label>
+        <locationX>176</locationX>
+        <locationY>1750</locationY>
+        <allowBack>false</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <connector>
+            <targetReference>noshow_selection_loop</targetReference>
+        </connector>
+        <fields>
+            <name>NotAttendedInstructions</name>
+            <fieldText>&lt;p&gt;&lt;strong&gt;Select the caseworkers who DID NOT SHOW UP.&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;They will be marked as &quot;Not attended&quot; and automatically receive a reschedule email.&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;em&gt;Leave unselected if you want them to remain as &quot;Registered&quot; for now.&lt;/em&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <fields>
+            <name>noshow_datatable</name>
+            <dataTypeMappings>
+                <typeName>T</typeName>
+                <typeValue>CampaignMember</typeValue>
+            </dataTypeMappings>
+            <extensionName>flowruntime:datatable</extensionName>
+            <fieldType>ComponentInstance</fieldType>
+            <inputParameters>
+                <name>label</name>
+                <value>
+                    <stringValue>Remaining Registered Members</stringValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>selectionMode</name>
+                <value>
+                    <stringValue>MULTI_SELECT</stringValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>minRowSelection</name>
+                <value>
+                    <numberValue>0.0</numberValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>tableData</name>
+                <value>
+                    <elementReference>get_remaining_registered_members</elementReference>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>shouldDisplayLabel</name>
+                <value>
+                    <booleanValue>true</booleanValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>columns</name>
+                <value>
+                    <stringValue>[{&quot;apiName&quot;:&quot;Name&quot;,&quot;guid&quot;:&quot;column-ns01&quot;,&quot;editable&quot;:false,&quot;hasCustomHeaderLabel&quot;:false,&quot;customHeaderLabel&quot;:&quot;&quot;,&quot;wrapText&quot;:true,&quot;order&quot;:0,&quot;label&quot;:&quot;Name&quot;,&quot;type&quot;:&quot;text&quot;},{&quot;apiName&quot;:&quot;Title&quot;,&quot;guid&quot;:&quot;column-ns02&quot;,&quot;editable&quot;:false,&quot;hasCustomHeaderLabel&quot;:false,&quot;customHeaderLabel&quot;:&quot;&quot;,&quot;wrapText&quot;:true,&quot;order&quot;:1,&quot;label&quot;:&quot;Title&quot;,&quot;type&quot;:&quot;text&quot;}]</stringValue>
                 </value>
             </inputParameters>
             <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
@@ -364,7 +518,7 @@
             <targetReference>get_campaign</targetReference>
         </connector>
     </start>
-    <status>Obsolete</status>
+    <status>Active</status>
     <textTemplates>
         <name>bodyEmail</name>
         <isViewedAsPlainText>false</isViewedAsPlainText>
@@ -396,6 +550,13 @@
     </variables>
     <variables>
         <name>getdataTableIds</name>
+        <dataType>String</dataType>
+        <isCollection>true</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>noshowDataTableIds</name>
         <dataType>String</dataType>
         <isCollection>true</isCollection>
         <isInput>false</isInput>

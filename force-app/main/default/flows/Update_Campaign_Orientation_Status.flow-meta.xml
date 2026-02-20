@@ -29,80 +29,10 @@
                 <elementReference>campaign_members_loop.ContactId</elementReference>
             </value>
         </assignmentItems>
-        <assignmentItems>
-            <assignToReference>numberOfContactsToUpdate</assignToReference>
-            <operator>Add</operator>
-            <value>
-                <numberValue>1.0</numberValue>
-            </value>
-        </assignmentItems>
         <connector>
             <targetReference>campaign_members_loop</targetReference>
         </connector>
     </assignments>
-    <assignments>
-        <name>End_Flow_No_Contacts</name>
-        <label>End Flow No Contacts</label>
-        <locationX>176</locationX>
-        <locationY>1280</locationY>
-        <assignmentItems>
-            <assignToReference>numberOfContactsToUpdate</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>numberOfContactsToUpdate</elementReference>
-            </value>
-        </assignmentItems>
-    </assignments>
-    <decisions>
-        <name>Any_Contacts_To_Update</name>
-        <label>Any Contacts To Update</label>
-        <locationX>176</locationX>
-        <locationY>1220</locationY>
-        <defaultConnector>
-            <targetReference>End_Flow_No_Contacts</targetReference>
-        </defaultConnector>
-        <defaultConnectorLabel>No contacts selected (skip update)</defaultConnectorLabel>
-        <rules>
-            <name>Has_Contacts</name>
-            <conditionLogic>and</conditionLogic>
-            <conditions>
-                <leftValueReference>numberOfContactsToUpdate</leftValueReference>
-                <operator>GreaterThan</operator>
-                <rightValue>
-                    <numberValue>0.0</numberValue>
-                </rightValue>
-            </conditions>
-            <connector>
-                <targetReference>update_contact</targetReference>
-            </connector>
-            <label>Has Contacts</label>
-        </rules>
-    </decisions>
-    <decisions>
-        <name>Only_Contact_Members</name>
-        <label>Only Contact Members</label>
-        <locationX>176</locationX>
-        <locationY>920</locationY>
-        <defaultConnector>
-            <targetReference>campaign_members_loop</targetReference>
-        </defaultConnector>
-        <defaultConnectorLabel>Lead or no Contact (skip)</defaultConnectorLabel>
-        <rules>
-            <name>Has_ContactId</name>
-            <conditionLogic>and</conditionLogic>
-            <conditions>
-                <leftValueReference>campaign_members_loop.ContactId</leftValueReference>
-                <operator>IsNull</operator>
-                <rightValue>
-                    <booleanValue>false</booleanValue>
-                </rightValue>
-            </conditions>
-            <connector>
-                <targetReference>set_Status_and_contactId</targetReference>
-            </connector>
-            <label>Has ContactId</label>
-        </rules>
-    </decisions>
     <environments>Default</environments>
     <formulas>
         <name>Today</name>
@@ -119,10 +49,10 @@
         <collectionReference>get_campaign_members_selected</collectionReference>
         <iterationOrder>Asc</iterationOrder>
         <nextValueConnector>
-            <targetReference>Only_Contact_Members</targetReference>
+            <targetReference>set_Status_and_contactId</targetReference>
         </nextValueConnector>
         <noMoreValuesConnector>
-            <targetReference>Any_Contacts_To_Update</targetReference>
+            <targetReference>update_contact</targetReference>
         </noMoreValuesConnector>
     </loops>
     <loops>
@@ -354,17 +284,6 @@
         <isCollection>true</isCollection>
         <isInput>false</isInput>
         <isOutput>false</isOutput>
-    </variables>
-    <variables>
-        <name>numberOfContactsToUpdate</name>
-        <dataType>Number</dataType>
-        <isCollection>false</isCollection>
-        <isInput>false</isInput>
-        <isOutput>false</isOutput>
-        <scale>0</scale>
-        <value>
-            <numberValue>0.0</numberValue>
-        </value>
     </variables>
     <variables>
         <name>recordId</name>
