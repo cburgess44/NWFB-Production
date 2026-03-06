@@ -39,6 +39,7 @@ public with sharing class InvoicePaymentProcess implements CloverConnectPaymentH
         List<Object> invoicePayments = (List<Object>) userFields.get('invoicePayments');
         if (invoicePayments != null && !invoicePayments.isEmpty()) {
             List<ServicePayment__c> newInvoicePayments = new List<ServicePayment__c>();
+            List<Payment__c> childPayments = new List<Payment__c>();
 
             for (Object invoicePaymentObj : invoicePayments) {
                 Map<String, Object> invoicePaymentMap = (Map<String, Object>) invoicePaymentObj;
@@ -50,9 +51,22 @@ public with sharing class InvoicePaymentProcess implements CloverConnectPaymentH
                                 Amount__c = Double.valueOf(invoicePaymentMap.get('Amount__c'))
                         )
                 );
+
+                childPayments.add(new Payment__c(
+                        Service__c = (Id) String.valueOf(invoicePaymentMap.get('Service__c')),
+                        ParentPayment__c = newPayment.Id,
+                        PaymentAmount__c = Double.valueOf(invoicePaymentMap.get('Amount__c')),
+                        PaymentDate__c = newPayment.PaymentDate__c,
+                        PaymentMethod__c = newPayment.PaymentMethod__c,
+                        TransactionId__c = newPayment.TransactionId__c,
+                        PaymentType__c = 'Payment',
+                        Status__c = 'Approved',
+                        CardLast4Digits__c = newPayment.CardLast4Digits__c
+                ));
             }
 
             insert newInvoicePayments;
+            insert childPayments;
         }
     }
 

@@ -387,11 +387,35 @@ export default class InvoicePayments extends NavigationMixin(LightningElement) {
                 return;
             }
 
+            const parentPaymentId = this.payments[0].Id;
+
             for (const payment of this.newInvoicePayment) {
-                payment.Payment__c = this.payments[0].Id;
+                payment.Payment__c = parentPaymentId;
             }
 
             this.newInvoicePayment = await saveSObjects({sObjects: this.newInvoicePayment});
+
+            const childPayments = this.selectedInvoices.map(invoice => {
+                const currentInvoice = this.invoices.find(inv => inv.Id === invoice.Id);
+                const paymentAmount = currentInvoice ? currentInvoice.PaymentAmount : invoice.BalanceDue__c;
+                const child = {
+                    sobjectType: 'Payment__c',
+                    PaymentAmount__c: Number(paymentAmount),
+                    PaymentDate__c: this.parentPayment.PaymentDate__c,
+                    PaymentMethod__c: this.parentPayment.PaymentMethod__c,
+                    PaymentType__c: 'Payment',
+                    Status__c: 'Processed',
+                    Service__c: invoice.Id,
+                    ParentPayment__c: parentPaymentId
+                };
+                if (this.parentPayment.CheckNumber__c) {
+                    child.CheckNumber__c = this.parentPayment.CheckNumber__c;
+                }
+                return child;
+            });
+
+            await saveSObjects({sObjects: childPayments});
+
             this.showToast(
                 'Payment Approved',
                 'Your payment has been successfully approved',

@@ -148,39 +148,6 @@
     <description>Detects potential duplicate Service requests at the same address within 12 months. Flags the Service for review and notifies the Client Service Manager.</description>
     <environments>Default</environments>
     <formulas>
-        <name>TwelveMonthsAgo</name>
-        <dataType>Date</dataType>
-        <expression>ADDMONTHS(TODAY(), -12)</expression>
-    </formulas>
-    <formulas>
-        <name>CurrentStreetNumber</name>
-        <dataType>String</dataType>
-        <expression>IF(FIND(" ", {!Loop_Through_Services.Address__c}) > 0,
-   TRIM(LEFT({!Loop_Through_Services.Address__c}, FIND(" ", {!Loop_Through_Services.Address__c}) - 1)),
-   {!Loop_Through_Services.Address__c}
-)</expression>
-    </formulas>
-    <formulas>
-        <name>NewRecordStreetNumber</name>
-        <dataType>String</dataType>
-        <expression>IF(FIND(" ", {!$Record.Address__c}) > 0,
-   TRIM(LEFT({!$Record.Address__c}, FIND(" ", {!$Record.Address__c}) - 1)),
-   {!$Record.Address__c}
-)</expression>
-    </formulas>
-    <formulas>
-        <name>NotificationBody</name>
-        <dataType>String</dataType>
-        <expression>"A new Client Request has been flagged as a potential duplicate address." &amp; BR() &amp; BR() &amp;
-"NEW REQUEST:" &amp; BR() &amp;
-"Service: " &amp; {!$Record.Name} &amp; BR() &amp;
-"Address: " &amp; {!$Record.Address__c} &amp; IF(NOT(ISBLANK({!$Record.Apt_Unit_Number__c})), " " &amp; {!$Record.Apt_Unit_Number__c}, "") &amp; ", " &amp; {!$Record.City__c} &amp; ", " &amp; {!$Record.State__c} &amp; " " &amp; {!$Record.Zip__c} &amp; BR() &amp; BR() &amp;
-"MATCHING PRIOR REQUEST:" &amp; BR() &amp;
-"Service: " &amp; {!MatchedServiceName} &amp; BR() &amp;
-"Address: " &amp; {!MatchedServiceAddress} &amp; IF(NOT(ISBLANK({!MatchedServiceApt})), " " &amp; {!MatchedServiceApt}, "") &amp; BR() &amp; BR() &amp;
-"Please review and clear the duplicate flag if this is a legitimate separate request."</expression>
-    </formulas>
-    <formulas>
         <name>AptNumbersMatch</name>
         <dataType>Boolean</dataType>
         <expression>OR(
@@ -189,12 +156,45 @@
 )</expression>
     </formulas>
     <formulas>
+        <name>CurrentStreetNumber</name>
+        <dataType>String</dataType>
+        <expression>IF(FIND(&quot; &quot;, {!Loop_Through_Services.Address__c}) &gt; 0,
+   TRIM(LEFT({!Loop_Through_Services.Address__c}, FIND(&quot; &quot;, {!Loop_Through_Services.Address__c}) - 1)),
+   {!Loop_Through_Services.Address__c}
+)</expression>
+    </formulas>
+    <formulas>
+        <name>NewRecordStreetNumber</name>
+        <dataType>String</dataType>
+        <expression>IF(FIND(&quot; &quot;, {!$Record.Address__c}) &gt; 0,
+   TRIM(LEFT({!$Record.Address__c}, FIND(&quot; &quot;, {!$Record.Address__c}) - 1)),
+   {!$Record.Address__c}
+)</expression>
+    </formulas>
+    <formulas>
+        <name>NotificationBody</name>
+        <dataType>String</dataType>
+        <expression>&quot;A new Client Request has been flagged as a potential duplicate address.&quot; &amp; BR() &amp; BR() &amp;
+&quot;NEW REQUEST:&quot; &amp; BR() &amp;
+&quot;Service: &quot; &amp; {!$Record.Name} &amp; BR() &amp;
+&quot;Address: &quot; &amp; {!$Record.Address__c} &amp; IF(NOT(ISBLANK({!$Record.Apt_Unit_Number__c})), &quot; &quot; &amp; {!$Record.Apt_Unit_Number__c}, &quot;&quot;) &amp; &quot;, &quot; &amp; {!$Record.City__c} &amp; &quot;, &quot; &amp; {!$Record.State__c} &amp; &quot; &quot; &amp; {!$Record.Zip__c} &amp; BR() &amp; BR() &amp;
+&quot;MATCHING PRIOR REQUEST:&quot; &amp; BR() &amp;
+&quot;Service: &quot; &amp; {!MatchedServiceName} &amp; BR() &amp;
+&quot;Address: &quot; &amp; {!MatchedServiceAddress} &amp; IF(NOT(ISBLANK({!MatchedServiceApt})), &quot; &quot; &amp; {!MatchedServiceApt}, &quot;&quot;) &amp; BR() &amp; BR() &amp;
+&quot;Please review and clear the duplicate flag if this is a legitimate separate request.&quot;</expression>
+    </formulas>
+    <formulas>
         <name>TaskDescription</name>
         <dataType>String</dataType>
-        <expression>"This service request has been flagged as a potential duplicate." &amp; BR() &amp; BR() &amp;
-"Service: " &amp; {!$Record.Name} &amp; BR() &amp;
-"Address: " &amp; {!$Record.Address__c} &amp; ", " &amp; {!$Record.City__c} &amp; ", " &amp; {!$Record.State__c} &amp; " " &amp; {!$Record.Zip__c} &amp; BR() &amp; BR() &amp;
-"Please review and clear the duplicate flag if this is a legitimate separate request."</expression>
+        <expression>&quot;This service request has been flagged as a potential duplicate.&quot; &amp; BR() &amp; BR() &amp;
+&quot;Service: &quot; &amp; {!$Record.Name} &amp; BR() &amp;
+&quot;Address: &quot; &amp; {!$Record.Address__c} &amp; &quot;, &quot; &amp; {!$Record.City__c} &amp; &quot;, &quot; &amp; {!$Record.State__c} &amp; &quot; &quot; &amp; {!$Record.Zip__c} &amp; BR() &amp; BR() &amp;
+&quot;Please review and clear the duplicate flag if this is a legitimate separate request.&quot;</expression>
+    </formulas>
+    <formulas>
+        <name>TwelveMonthsAgo</name>
+        <dataType>Date</dataType>
+        <expression>ADDMONTHS(TODAY(), -12)</expression>
     </formulas>
     <interviewLabel>Service Duplicate Address Detection {!$Flow.CurrentDateTime}</interviewLabel>
     <label>Service Duplicate Address Detection</label>
@@ -296,15 +296,15 @@
             <targetReference>Send_Notification</targetReference>
         </connector>
         <inputAssignments>
-            <field>Pending_Duplicate_Review__c</field>
-            <value>
-                <booleanValue>true</booleanValue>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
             <field>Duplicate_Match_Service__c</field>
             <value>
                 <elementReference>MatchedServiceId</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Pending_Duplicate_Review__c</field>
+            <value>
+                <booleanValue>true</booleanValue>
             </value>
         </inputAssignments>
         <inputReference>$Record</inputReference>
@@ -327,9 +327,16 @@
         <recordTriggerType>Create</recordTriggerType>
         <triggerType>RecordAfterSave</triggerType>
     </start>
-    <status>Active</status>
+    <status>Draft</status>
     <variables>
         <name>MatchedServiceAddress</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>MatchedServiceApt</name>
         <dataType>String</dataType>
         <isCollection>false</isCollection>
         <isInput>false</isInput>
@@ -344,13 +351,6 @@
     </variables>
     <variables>
         <name>MatchedServiceName</name>
-        <dataType>String</dataType>
-        <isCollection>false</isCollection>
-        <isInput>false</isInput>
-        <isOutput>false</isOutput>
-    </variables>
-    <variables>
-        <name>MatchedServiceApt</name>
         <dataType>String</dataType>
         <isCollection>false</isCollection>
         <isInput>false</isInput>
